@@ -21,3 +21,5 @@
 
 # Ignore all MOV files  
 *.mov  
+
+videos/
