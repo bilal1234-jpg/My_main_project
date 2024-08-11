@@ -502,8 +502,7 @@ ScreenManager:
 
 <Start_page_UI>:
     name: 'start_page'
-    BoxLayout:
-        orientation: 'vertical'
+    
         
             
 '''
