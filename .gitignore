@@ -1,6 +1,7 @@
-wijlaobgoeyimucg
- Ignore all JPEG files  
+#wijlaobgoeyimucg
+#Ignore all JPEG files  
 *.jpg  
+
 *.jpeg  
 
 # Ignore all PNG files  
