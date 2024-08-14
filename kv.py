@@ -70,12 +70,12 @@ ScreenManager:
             mode: "rectangle"
             size_hint_x: None
             width: 300  
-            pos_hint: {'center_y': 0.6,'center_x': 0.5}
+            pos_hint: {'center_y': 0.57,'center_x': 0.5}
 
         MDIconButton:
-            halign: "center"
+            
             icon: "eye-off"
-            pos_hint: {'center_y': 0.6, 'center_x': 0.8}  # Center vertically relative to MDTextField
+            pos_hint: {'center_y': 0.57, 'center_x': 0.72}  # Center vertically relative to MDTextField
             theme_text_color: "Hint"
             on_release:
                 self.icon = "eye" if self.icon == "eye-off" else "eye-off"
@@ -84,24 +84,24 @@ ScreenManager:
         MDRectangleFlatIconButton:
             text: "Forgot Password?"
             line_color: 0, 0, 0, 0
-            pos_hint: {"center_x": 0.7,'center_y': 0.5}
+            pos_hint: {"center_x": 0.7,'center_y': 0.45}
             on_release: root.manager.current = 'forgotpass'
         
         MDRaisedButton:
             text: "Submit"
             size_hint: 0.2, None
             width: dp(100)
-            pos_hint: {"center_x": 0.5,'center_y': 0.4}
+            pos_hint: {"center_x": 0.5,'center_y': 0.37}
             on_release: app.login_user()
             
         
       
         MDLabel:
             text: "Don't have an account?"
-            halign: "center"
+            
             font_style: "H5" 
             font_size: '16sp'
-            pos_hint: {'center_x': 0.5,'center_y': 0.3}
+            pos_hint: {'center_x': 0.7,'center_y': 0.27}
             
             size_hint_x: 0.7
 
@@ -109,18 +109,18 @@ ScreenManager:
 
         MDRectangleFlatIconButton:
             text: "Sign up"
-            halign: "center"
+            
             line_color: (0, 0, 0, 0)
-            pos_hint: {'center_x': 0.7,'center_y': 0.3}
+            pos_hint: {'center_x': 0.6,'center_y': 0.27}
             on_release:
                 root.manager.transition.direction  = 'left'
                 root.manager.current = 'signup'
 
         MDRectangleFlatIconButton:
             text: "About us"
-            halign: "center"
+            
             line_color: (0, 0, 0, 0)
-            pos_hint: {'center_y': 0.2, 'center_x': 0.5}
+            pos_hint: {'center_y': 0.17, 'center_x': 0.5}
             on_release: root.manager.current = 'about_us'        
 
 

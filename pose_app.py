@@ -20,12 +20,13 @@ from kivy.properties import BooleanProperty
 from kv import helper1
 from kivy.core.window import Window  
 from kivy.animation import Animation
-from  kivymd.uix.boxlayout import BoxLayout
+from  kivymd.uix.floatlayout import FloatLayout
 from  kivymd.uix.label import MDLabel
 from kivy.uix.image import Image
 from kivy.graphics import Canvas 
 from kivy.graphics import Rectangle 
 from kivy.core.window import Window
+from kivymd.uix.button import MDIconButton
 ###################################################### Models ###################################################################################
 
 # model = tf.saved_model.load('E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app')
@@ -66,32 +67,7 @@ from kivy.core.window import Window
 
 ####################################################### Screens Class #########################################################################
 
-class Start_page_UI(Screen):
-    def __init__(self, **kwargs):
-        super(Start_page_UI, self).__init__(**kwargs)
-        # You can still define and add widgets here
-        with self.canvas.before:
-            Rectangle(source='bg3.png', pos=self.pos, size=Window.size)
-           
-        box_layout = BoxLayout(orientation='vertical')
-        self.image = Image(source='circle_image_logo.png', pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
-        self.md_label = MDLabel(text='ChildGuard', halign='center', size=(self.height*0, self.width*0), size_hint_y=None, font_style='H4', bold=True, theme_text_color="Custom",
-            text_color=(255, 99, 71, 1))
-        self.animate_lable()
-        box_layout.add_widget(self.md_label)
-        self.animate_image()
-        self.add_widget(self.image)
-        self.add_widget(box_layout)
-        
 
-    def animate_image(self, *args):
-        anim = Animation(size = (self.height,self.width ))
-        anim += Animation(size = (self.height*4, self.width*4),pos_hint={'center_x': 0.5, 'center_y': 0.7}, transition = 'in_quad')
-        anim.start(self.image)
-    def animate_lable(self, *args):
-        anim_lable = Animation(size = (self.height, self.width ))
-        anim_lable += Animation(size = (self.height*4, self.width*4), transition = 'in_circ')
-        anim_lable.start(self.md_label)
 
 
 class LoginScreen(Screen):
@@ -109,18 +85,44 @@ class Video_screen(Screen):
     pass
 class About_us(Screen):
     pass
-        
 
-################################################ Screen Managers #######################################################################################
-sm = ScreenManager()
-sm.add_widget(LoginScreen(name ='login'))
-sm.add_widget(SignupScreen(name='signup'))
-sm.add_widget(MainScreeen(name='main'))
-sm.add_widget(ForgotScreen(name='forgotpass'))
-sm.add_widget(HistoryScreen(name='history'))
-sm.add_widget(Video_screen(name='video_screen'))
-sm.add_widget(About_us(name='about_us'))
-# sm.add_widget(Start_page_UI(name = 'start_page'))
+
+
+class Start_page_UI(Screen):
+    def __init__(self, **kwargs):
+        super(Start_page_UI, self).__init__(**kwargs)
+        # You can still define and add widgets here
+        with self.canvas.before:
+            Rectangle(source='bg6.jpg', pos=self.pos, size=Window.size)
+           
+        box_layout = FloatLayout()
+        self.image = Image(source='circle_image_logo.png', pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
+        self.md_label = MDLabel(text='ChildGuard', halign='center', size=(self.height*0, self.width*0), size_hint_y=None, font_style='H4', bold=True, theme_text_color="Custom",
+            text_color=(1, 1, 1, 1))
+        self.animate_lable()
+        box_layout.add_widget(self.md_label)
+        self.animate_image()
+        self.add_widget(self.image)
+        button1 = MDIconButton(icon = "next-button.png", pos_hint={"center_x": .5, 'center_y': 0.1} ,icon_size =  "100sp", on_release=self.login)
+        
+        box_layout.add_widget(button1)
+        self.add_widget(box_layout)
+    
+    def login(self, *args):
+        if self.manager:
+            self.manager.current = 'login'
+        else:
+            print("Error: 'manager' is not defined")
+
+    def animate_image(self, *args):
+        anim = Animation(size = (self.height,self.width ))
+        anim += Animation(size = (self.height*4, self.width*4),pos_hint={'center_x': 0.5, 'center_y': 0.7}, transition = 'in_quad')
+        anim.start(self.image)
+    def animate_lable(self, *args):
+        anim_lable = Animation(size = (self.height, self.width ))
+        anim_lable += Animation(size = (self.height*4, self.width*4), transition = 'in_circ')
+        anim_lable.start(self.md_label)
+        
 
 ################################################# Main Class #############################################################################
 
@@ -544,8 +546,18 @@ class apps(MDApp):
             Window.fullscreen = 'auto' 
 ########################################## Main builder for load screens layout #################################################################        
     def build(self):
-        sm.add_widget(Start_page_UI(name = 'start_page'))
+        
         self.screen = Builder.load_string(helper1)
+################################################ Screen Managers #######################################################################################
+        sm = ScreenManager()
+        sm.add_widget(LoginScreen(name ='login'))
+        sm.add_widget(SignupScreen(name='signup'))
+        sm.add_widget(MainScreeen(name='main'))
+        sm.add_widget(ForgotScreen(name='forgotpass'))
+        sm.add_widget(HistoryScreen(name='history'))
+        sm.add_widget(Video_screen(name='video_screen'))
+        sm.add_widget(About_us(name='about_us'))
+        sm.add_widget(Start_page_UI(name = 'start_page'))
         self.screen.current = 'start_page'
         self.cls = True
         return self.screen
