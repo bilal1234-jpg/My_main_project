@@ -92,13 +92,13 @@ class Start_page_UI(Screen):
     def __init__(self, **kwargs):
         super(Start_page_UI, self).__init__(**kwargs)
         # You can still define and add widgets here
-        with self.canvas.before:
-            Rectangle(source='bg6.jpg', pos=self.pos, size=Window.size)
-           
+        # with self.canvas.before:
+        #     Rectangle(source='bg6.jpg', pos=self.pos, size=Window.size)
+        
         box_layout = FloatLayout()
-        self.image = Image(source='circle_image_logo.png', pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
+        self.image = Image(source='logo2.png', pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
         self.md_label = MDLabel(text='ChildGuard', halign='center', size=(self.height*0, self.width*0), size_hint_y=None, font_style='H4', bold=True, theme_text_color="Custom",
-            text_color=(1, 1, 1, 1))
+            text_color=(0,0,0,1))
         self.animate_lable()
         box_layout.add_widget(self.md_label)
         self.animate_image()
@@ -116,7 +116,7 @@ class Start_page_UI(Screen):
 
     def animate_image(self, *args):
         anim = Animation(size = (self.height,self.width ))
-        anim += Animation(size = (self.height*4, self.width*4),pos_hint={'center_x': 0.5, 'center_y': 0.7}, transition = 'in_quad')
+        anim += Animation(size = (self.height*4, self.width*4),pos_hint={'center_x': 0.5, 'center_y': 0.6}, transition = 'in_quad')
         anim.start(self.image)
     def animate_lable(self, *args):
         anim_lable = Animation(size = (self.height, self.width ))
