@@ -27,6 +27,8 @@ from kivy.graphics import Canvas
 from kivy.graphics import Rectangle 
 from kivy.core.window import Window
 from kivymd.uix.button import MDIconButton
+from voice import voice_detect
+import time
 ###################################################### Models ###################################################################################
 
 # model = tf.saved_model.load('E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app')
@@ -149,6 +151,10 @@ class apps(MDApp):
         self.camera = False
         self.flip_camera = 0
         self.cv2_path  = None
+        self.mic_0_1 = 0
+        self.v = voice_detect()
+        self.mic_thread = None
+        self.mic_running = False
 ####################################################### Picture change in main and sign pages #######################################################################
     def select_path(self, path):
        
@@ -532,12 +538,39 @@ class apps(MDApp):
     def mic_open(self):
         text = self.root.get_screen('main').ids.mic.text
         if text == 'Mic off':
+            
             self.root.get_screen('main').ids.mic.text = 'Mic on'
             self.root.get_screen('main').ids.mic.icon = 'microphone-variant'
+            self.mic_0_1 = 1
+            
+            if not self.mic_running:
+                self.mic_running = True
+                self.mic_thread = threading.Thread(target=self.recognize_from_microphone)
+                self.mic_thread.start()
+
+
+
         else:
             self.root.get_screen('main').ids.mic.text = 'Mic off'
             self.root.get_screen('main').ids.mic.icon = 'microphone-variant-off'
+            self.mic_0_1 = 0
+            self.mic_running = False
+            if self.mic_thread is not None:
+                self.mic_thread.join()  # Wait for the thread to finish
+                self.mic_thread = None
+    
+    def recognize_from_microphone(self):
+        while self.mic_running:
+            try:
+                # Replace with your actual microphone recognition logic
+                self.v.recognize_from_microphone()
+            except Exception as e:
+                print(f"Error during microphone recognition: {e}")
+            time.sleep(1) 
+            
 
+           
+         
     def toggle_fullscreen(self):  
         if Window.fullscreen == 'auto':  
             Window.fullscreen = False  
