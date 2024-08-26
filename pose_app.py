@@ -6,13 +6,13 @@ from  sql_app import User , session
 from kivy.properties import StringProperty
 from kivymd.uix.dialog import MDDialog
 import smtplib
-# import tensorflow as tf
-# import cv2
-# from tensorflow.keras import models
-# import numpy as np
+import tensorflow as tf
+import cv2
+from tensorflow.keras import models
+import numpy as np
 import os
-# from kivy.clock import Clock
-# from kivy.graphics.texture import Texture
+from kivy.clock import Clock
+from kivy.graphics.texture import Texture
 import threading
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.list import  IconLeftWidget
@@ -25,14 +25,14 @@ from  kivymd.uix.label import MDLabel
 from kivy.uix.image import Image
 from kivy.graphics import Canvas 
 from kivy.graphics import Rectangle 
-from kivy.core.window import Window
 from kivymd.uix.button import MDIconButton
 from voice import voice_detect
 import time
+import tensorflow_hub as hub
 ###################################################### Models ###################################################################################
 
-# model = tf.saved_model.load('E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app')
-# movenet = model.signatures['serving_default']
+model = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
+movenet = model.signatures['serving_default']
 
 # model_num1 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final1.h5')
 # model_num2 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final.h5')
@@ -41,28 +41,31 @@ import time
 # model_num5 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final.h5')
 # model_num6 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final2.h5')
 
+model_num1 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final.h5')
+model_num2 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final1.h5')
+
 ############################################################ EDGES ###############################################################3
 
-# EDGES = {
-#     (0, 1): 'm',
-#     (0, 2): 'c',
-#     (1, 3): 'm',
-#     (2, 4): 'c',
-#     (0, 5): 'm',
-#     (0, 6): 'c',
-#     (5, 7): 'm',
-#     (7, 9): 'm',
-#     (6, 8): 'c',
-#     (8, 10): 'c',
-#     (5, 6): 'y',
-#     (5, 11): 'm',
-#     (6, 12): 'c',
-#     (11, 12): 'y',
-#     (11, 13): 'm',
-#     (13, 15): 'm',
-#     (12, 14): 'c',
-#     (14, 16): 'c'
-# }
+EDGES = {
+    (0, 1): 'm',
+    (0, 2): 'c',
+    (1, 3): 'm',
+    (2, 4): 'c',
+    (0, 5): 'm',
+    (0, 6): 'c',
+    (5, 7): 'm',
+    (7, 9): 'm',
+    (6, 8): 'c',
+    (8, 10): 'c',
+    (5, 6): 'y',
+    (5, 11): 'm',
+    (6, 12): 'c',
+    (11, 12): 'y',
+    (11, 13): 'm',
+    (13, 15): 'm',
+    (12, 14): 'c',
+    (14, 16): 'c'
+}
 
 
 
@@ -143,9 +146,9 @@ class apps(MDApp):
         self.model_accuracy = []
         self.num_of_frame = 15
         self.number_of_dataset = 1000
-        # self.actions = np.array(['normal','slap','kick'])
-        # self.Data_path = os.path.join('MP_DATA')
-        # self.res = np.zeros((len(self.actions),))
+        self.actions = np.array(['normal','slap','kick'])
+        self.Data_path = os.path.join('MP_DATA')
+        self.res = np.zeros((len(self.actions),))
         self.vid_frame = []
         self.vid_i = 0
         self.camera = False
@@ -155,6 +158,14 @@ class apps(MDApp):
         self.v = voice_detect()
         self.mic_thread = None
         self.mic_running = False
+        self.sequence_length = 10
+        self.confidence_thresholds = 0.3
+        self.threshold = 0.3
+        self.color = (0, 255, 0)
+        self.actions_dict = {}  
+        self.person_sequences = {}  
+        self.action = 'normal'
+       
 ####################################################### Picture change in main and sign pages #######################################################################
     def select_path(self, path):
        
@@ -353,157 +364,200 @@ class apps(MDApp):
             self.cv2_path = None
         
     
-    # def main_page(self):
-    #     try:
-    #         if self.cv2_path:
-    #             self.img = self.screen.get_screen('main').ids.camera_feed
-    #             int_cam = int(self.flip_camera)
+    def main_page(self):
+        try:
+            if self.cv2_path:
+                self.img = self.screen.get_screen('main').ids.camera_feed
+                int_cam = int(self.flip_camera)
                 
-    #             self.capture = cv2.VideoCapture(self.cv2_path)
-    #             self.clock_event = Clock.schedule_interval(self.update, 1.0 / 30.0)
-    #         else:    
+                self.capture = cv2.VideoCapture(self.cv2_path)
+                self.clock_event = Clock.schedule_interval(self.update, 1.0 / 30.0)
+            else:    
 
-    #             self.img = self.screen.get_screen('main').ids.camera_feed
-    #             int_cam = int(self.flip_camera)
+                self.img = self.screen.get_screen('main').ids.camera_feed
+                int_cam = int(self.flip_camera)
             
-    #             self.capture = cv2.VideoCapture(int_cam)
-    #             self.clock_event = Clock.schedule_interval(self.update, 1.0 / 30.0)
-    #     except cv2.Error as e:
+                self.capture = cv2.VideoCapture(int_cam)
+                self.clock_event = Clock.schedule_interval(self.update, 1.0 / 30.0)
+        except cv2.Error as e:
 
-    #         
-    #         dialog = MDDialog(
-    #             title="Warning",
-    #             text="No camera available, flip camera from top corner",
-    #             size_hint=(0.5, 0.3)
-    #                 )
-    #         dialog.open()
-
-
-
-    # ###################################################################################################################
-    # def update(self, dt):
-    #     ret, frame = self.capture.read()
-    #     if ret:
-    #         frame = self.process_frame(frame)
-    #         buf1 = cv2.flip(frame, 0)
-    #         buf = buf1.tostring()
-    #         image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
-    #         image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
-    #         self.img.texture = image_texture
-    # ###########################################################################################################
-
-    # def process_frame(self, frame):
-        
-    #         self.camera = True
-    #         self.vid_frame.append(frame)
-    #         img = frame.copy()
-    #         img = tf.image.resize(tf.expand_dims(img, axis=0), (256, 256))
-    #         input_img = tf.cast(img, dtype=tf.int32)
             
-    #         # Detection section
-    #         results = movenet(input_img)
-    #         keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((1, 17, 3))
-            
-    #         # Render keypoints
-    #         self.loop_through_people(frame, keypoints_with_scores, EDGES, 0.1)
-    #         xx = []
-    #         yy = []
-    #         zz = []
-    #         key_points = keypoints_with_scores[0]
-    #         for key_point in key_points:
-    #             x, y, z = key_point
+            dialog = MDDialog(
+                title="Warning",
+                text="No camera available, flip camera from top corner",
+                size_hint=(0.5, 0.3)
+                    )
+            dialog.open()
 
-    #             xx.append(x)
-    #             yy.append(y)
-    #             zz.append(z)
-    #         x_axis = np.array(xx).flatten()
-    #         y_axis = np.array(yy).flatten()
-    #         z_axis = np.array(zz).flatten()
-    #         final_keypoint = np.concatenate([x_axis,y_axis,z_axis])
-                
-                
-            
-    #         self.sequence.append(final_keypoint)
-            
-        
 
-    #         if len(self.sequence)==15:
-    #             res1 = model_num4.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
-    #             res2 = model_num5.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
-    #             # res3 = model_num3.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
-    #             # res4 = model_num2.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
-    #             res5 = model_num1.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
+
+    ###################################################################################################################
+    def update(self, dt):
+        ret, frame = self.capture.read()
+        if ret:
+            height, width, _ = frame.shape
+            frame = self.process_frame(frame, height, width)
+            buf1 = cv2.flip(frame, 0)
+            buf = buf1.tostring()
+            image_texture = Texture.create(size=(frame.shape[1], frame.shape[0]), colorfmt='bgr')
+            image_texture.blit_buffer(buf, colorfmt='bgr', bufferfmt='ubyte')
+            self.img.texture = image_texture
+    ###########################################################################################################
+    def is_collide(self , box1, box2):
+        return not (box1[2] < box2[0] or    # box1's right < box2's left
+                    box1[0] > box2[2] or    # box1's left > box2's right
+                    box1[3] < box2[1] or    # box1's bottom < box2's top
+                    box1[1] > box2[3]) 
+    
+
+    def check_collide(self,bound_boxes):
+        for i in range(len(bound_boxes)):
+            for j in range(i + 1, len(bound_boxes)):
+                if self.is_collide(bound_boxes[i], bound_boxes[j]):
+                    return True
+        return False
                 
+    
+    def process_frame(self, frame,height,width ):
+            bound_boxes = []  
+            
+            self.camera = True
+            self.vid_frame.append(frame)
+            img = frame.copy()
+            img = tf.image.resize(tf.expand_dims(img, axis=0), (256, 256))
+            input_img = tf.cast(img, dtype=tf.int32)
+            
+            # Detection section
+            results = movenet(input_img)
+            keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((6, 17, 3))
+            keypoints_with_scores_boxes = results['output_0'].numpy()[0]
+            
+            # Render keypoints
+            self.loop_through_people(frame, keypoints_with_scores, EDGES, 0.1)
+            for i, box in enumerate(keypoints_with_scores_boxes):
+                ymin, xmin, ymax, xmax, confidence = box[-5:]
+                if confidence > 0.20:
+                    start_point = (int(xmin * width), int(ymin * height))
+                    end_point = (int(xmax * width), int(ymax * height))
+                    bound_boxes.append((xmin * width, ymin * height, xmax * width, ymax * height))
+            collision_detected = self.check_collide(bound_boxes)
+            
+            for i, box in enumerate(keypoints_with_scores_boxes):
+                ymin, xmin, ymax, xmax, confidence = box[-5:]
                 
-    #             self.res = (res1+res2+res5)/3
-    #             self.sequence = []
-                
-                
+                if confidence > 0.20:
+                    start_point = (int(xmin * width), int(ymin * height))
+                    end_point = (int(xmax * width), int(ymax * height))
                     
-    #             if self.res[self.res.argmax()] > self.threshold:
-    #                 action = self.actions[self.res.argmax()]
-    #                 cv2.putText(frame, action, (15, 30), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
-    #                 if action == 'slap' or action=='kick':
-    #                     thread = threading.Thread(target = self.capture_vid)
-    #                     thread.start()
+                    # Set color based on collision
+                    if collision_detected:  
+                        color = (0, 0, 255)  
+                        
+                    else:  
+                        color = (0, 255, 0)  
+                        cv2.putText(frame, self.action, (int(xmin * width), int(ymin * height) - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                    
+                    cv2.rectangle(frame, start_point, end_point, color, 3)
+
+                    person_id = i
+                    person_confidence = keypoints_with_scores[person_id][:, 2]
+                    
+                    if np.all(person_confidence > self.confidence_thresholds):
+                        xx, yy, zz = [], [], []
+                        
+                        for key_point in keypoints_with_scores[person_id]:
+                            x, y, z = key_point
+                            xx.append(x)
+                            yy.append(y)
+                            zz.append(z)
+                    
+                        x_axis = np.array(xx).flatten()
+                        y_axis = np.array(yy).flatten()
+                        z_axis = np.array(zz).flatten()
+                        final_keypoint = np.concatenate([x_axis, y_axis, z_axis])
+                        
+                        if person_id not in self.person_sequences:
+                            self.person_sequences[person_id] = []
+                        
+                        self.person_sequences[person_id].append(final_keypoint)
+                        
+                        if len(self.person_sequences[person_id]) >= self.sequence_length:
+                            sequence = self.person_sequences[person_id]
+                            res2 = model_num2.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
+                            self.person_sequences[person_id] = [] 
+
+                            # if collision_detected:
+                            
+                            if res2[res2.argmax()] > self.threshold:
+                                self.action = self.actions[res2.argmax()]
+                                self.actions_dict[person_id] = self.action
+
+                            if self.action == 'slap' or self.action=='kick':
+                                thread = threading.Thread(target = self.capture_vid)
+                                thread.start()
+                    
+                    if person_id in self.actions_dict:
+                        action_text = self.actions_dict[person_id]
+                        cv2.putText(frame, f'{action_text}', (int(xmin * width), int(ymin * height) - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                    
 
 
-    #         return frame
-  ###############################################################################################################################################  
-    # def capture_vid(self):
+            return frame
+  ##############################################################################################################################################  
+    def capture_vid(self):
         
-    #         self.vid_i = self.vid_i + 1
-    #         # Define the output video filename
-    #         output_video = f'bilal_{self.vid_i}.avi'
+            self.vid_i = self.vid_i + 1
+            # Define the output video filename
+            output_video = f'bilal_{self.vid_i}.avi'
             
-    #         # Get the height and width of the frames
-    #         height, width, channels = self.vid_frame[0].shape
+            # Get the height and width of the frames
+            height, width, channels = self.vid_frame[0].shape
             
-    #         # Define the codec and create a VideoWriter object
-    #         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    #         video_out = cv2.VideoWriter(output_video, fourcc, 5.0, (width, height))
+            # Define the codec and create a VideoWriter object
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            video_out = cv2.VideoWriter(output_video, fourcc, 5.0, (width, height))
             
-    #         # Iterate through the frames in the 'fs' array and write each frame to the video
-    #         for fr in self.vid_frame[-15:]:
-    #             video_out.write(fr)
+            # Iterate through the frames in the 'fs' array and write each frame to the video
+            for fr in self.vid_frame[-15:]:
+                video_out.write(fr)
             
-    #         # Release the VideoWriter object
-    #         video_out.release()
-    #        
-###########################################################################################################################################
-    # def loop_through_people(self, frame, keypoints_with_scores, edges, confidence_threshold):
-    #     for person in keypoints_with_scores:
-    #         self.draw_connections(frame, person, edges, confidence_threshold)
-    #         self.draw_keypoints(frame, person, confidence_threshold)
+            # Release the VideoWriter object
+            video_out.release()
+           
+##########################################################################################################################################
+    def loop_through_people(self, frame, keypoints_with_scores, edges, confidence_threshold):
+        for person in keypoints_with_scores:
+            self.draw_connections(frame, person, edges, confidence_threshold)
+            self.draw_keypoints(frame, person, confidence_threshold)
 
-###########################################################################################################################################
-    # def draw_keypoints(self, frame, keypoints, confidence_threshold):
-    #     y, x, _ = frame.shape
-    #     shaped = np.squeeze(np.multiply(keypoints, [y, x, 1]))
+##########################################################################################################################################
+    def draw_keypoints(self, frame, keypoints, confidence_threshold):
+        y, x, _ = frame.shape
+        shaped = np.squeeze(np.multiply(keypoints, [y, x, 1]))
 
-    #     for kp in shaped:
-    #         ky, kx, kp_conf = kp
-    #         if kp_conf > confidence_threshold:
-    #             cv2.circle(frame, (int(kx), int(ky)), 6, (0, 255, 0), -1)
+        for kp in shaped:
+            ky, kx, kp_conf = kp
+            if kp_conf > confidence_threshold:
+                cv2.circle(frame, (int(kx), int(ky)), 6, (0, 255, 0), -1)
 
-########################################################################################################################################
-    # def draw_connections(self, frame, keypoints, edges, confidence_threshold):
-    #     y, x, _ = frame.shape
-    #     shaped = np.squeeze(np.multiply(keypoints, [y, x, 1]))
+#######################################################################################################################################
+    def draw_connections(self, frame, keypoints, edges, confidence_threshold):
+        y, x, _ = frame.shape
+        shaped = np.squeeze(np.multiply(keypoints, [y, x, 1]))
 
-    #     for edge, color in edges.items():
-    #         p1, p2 = edge
-    #         y1, x1, c1 = shaped[p1]
-    #         y2, x2, c2 = shaped[p2]
+        for edge, color in edges.items():
+            p1, p2 = edge
+            y1, x1, c1 = shaped[p1]
+            y2, x2, c2 = shaped[p2]
 
-    #         if (c1 > confidence_threshold) & (c2 > confidence_threshold):
-    #             cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), (100, 34, 255), 4)
+            if (c1 > confidence_threshold) & (c2 > confidence_threshold):
+                cv2.line(frame, (int(x1), int(y1)), (int(x2), int(y2)), (100, 34, 255), 4)
 
-    # def stop(self):
-    #     if self.camera:
-    #         self.capture.release()
-    #         cv2.destroyAllWindows()
-    #         self.root.get_screen('main').ids.camera_feed.source = 'project_app/upload.png'  
+    def stop(self):
+        if self.camera:
+            self.capture.release()
+            cv2.destroyAllWindows()
+            self.root.get_screen('main').ids.camera_feed.source = 'project_app/upload.png'  
         
 
 ############################################# Open saved violence folder and show in kivymd app  ###########################################
