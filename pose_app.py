@@ -360,12 +360,12 @@ class apps(MDApp):
     def camera_flip(self):
         
         if self.flip_camera == 0:
-            self.root.get_screen('main').ids.email.right_action_items = [["camera-flip", lambda x: self.camera_flip(), 'Front']]
+            self.root.get_screen('main').ids.email.right_action_items = [["camera-flip", lambda x: self.camera_flip(), 'Back']]
 
             self.flip_camera = 1
             self.cv2_path = None
         else:
-            self.root.get_screen('main').ids.email.right_action_items = [["camera", lambda x: self.camera_flip(), 'Back']]
+            self.root.get_screen('main').ids.email.right_action_items = [["camera", lambda x: self.camera_flip(), 'Front']]
             self.flip_camera = 0
             self.cv2_path = None
         
@@ -439,6 +439,7 @@ class apps(MDApp):
             results = movenet(input_img)
             keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((1, 17, 3))
             keypoints_with_scores_boxes = result2['output_0'].numpy()[0]
+            np.set_printoptions(precision = 8, suppress = True)
             
             # Render keypoints
             # self.loop_through_people(frame, keypoints_with_scores, EDGES, 0.2)
@@ -458,8 +459,7 @@ class apps(MDApp):
                     cv2.rectangle(frame, start_point, end_point, self.color,3)
                     bound_boxes.append((xmin*width, ymin*height,xmax*width, ymax*height))
 
-                    cv2.putText(frame, f'{self.action}-{i}', (int(xmin*width), int(ymin*height)), cv2.FONT_HERSHEY_SIMPLEX, 2,
-                                (0,0,255), 5,cv2.LINE_AA)
+                    cv2.putText(frame, self.action, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 2, self.color, 5, cv2.LINE_AA)
             
             for person_ in keypoints_with_scores:
           
@@ -502,14 +502,18 @@ class apps(MDApp):
                     self.sequence = []
                         
                         
+                    if self.check_collide: 
+                        self.color = (0,0,255)         
+                        if res[res.argmax()] > 0.10:
                             
-                    if res[res.argmax()] > 0.70:
-                        
-                        self.action = self.actions[res.argmax()]
+                            self.action = self.actions[res.argmax()]
 
-                        if self.action == 'slap' or self.action=='kick':
-                            thread = threading.Thread(target = self.capture_vid)
-                            thread.start()
+                            if self.action == 'slap' or self.action=='kick':
+                                thread = threading.Thread(target = self.capture_vid)
+                                thread.start()
+                    else:
+                        self.color = (0,255,0)
+                        self.action = 'normal'
                         
                     
                     
