@@ -167,10 +167,8 @@ class apps(MDApp):
         self.sequence_length = 10
         self.confidence_thresholds = 0.3
         self.threshold = 0.3
-        self.color = (0, 255, 0)
-        self.actions_dict = {}  
-        self.person_sequences = {}  
         self.action = 'normal'
+        self.color = (0,255,0)
        
 ####################################################### Picture change in main and sign pages #######################################################################
     def select_path(self, path):
@@ -435,8 +433,6 @@ class apps(MDApp):
             results = movenet(input_img)
             result2 = movenet_multi(input_img)
             
-            # Detection section
-            results = movenet(input_img)
             keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((1, 17, 3))
             keypoints_with_scores_boxes = result2['output_0'].numpy()[0]
             np.set_printoptions(precision = 8, suppress = True)
@@ -446,7 +442,7 @@ class apps(MDApp):
             for i,box in enumerate(keypoints_with_scores_boxes):
                 ymin, xmin, ymax, xmax , confidence = box[-5:]
                 
-                if confidence > 0.20:
+                if confidence > 0.10:
                     
                     
                     #make box points by mul keypoint give by movenet with frame height and width
@@ -454,13 +450,14 @@ class apps(MDApp):
                     start_point = (int(xmin * width), int(ymin * height))  # Top-left corner
                     end_point = (int(xmax * width), int(ymax * height))
                     
+                    
                         # Show to screen
                     
                     cv2.rectangle(frame, start_point, end_point, self.color,3)
                     bound_boxes.append((xmin*width, ymin*height,xmax*width, ymax*height))
+                    collision_detected = self.check_collide(bound_boxes)
+                    cv2.putText(frame, self.action, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 5, cv2.LINE_AA)
 
-                    cv2.putText(frame, self.action, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 2, self.color, 5, cv2.LINE_AA)
-            
             for person_ in keypoints_with_scores:
           
                 xx = []
@@ -502,12 +499,12 @@ class apps(MDApp):
                     self.sequence = []
                         
                         
-                    if self.check_collide: 
-                        self.color = (0,0,255)         
+                    if collision_detected: 
+                        
                         if res[res.argmax()] > 0.10:
-                            
+                            self.color = (0,0,255)
                             self.action = self.actions[res.argmax()]
-
+                        
                             if self.action == 'slap' or self.action=='kick':
                                 thread = threading.Thread(target = self.capture_vid)
                                 thread.start()
