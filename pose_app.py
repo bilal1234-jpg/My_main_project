@@ -15,7 +15,7 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 import threading
 from kivymd.uix.list import OneLineAvatarIconListItem
-from kivymd.uix.list import  IconLeftWidget
+from kivymd.uix.list import  IconLeftWidget, IconRightWidget
 from kivy.properties import BooleanProperty
 from kv import helper1
 from kivy.core.window import Window  
@@ -29,6 +29,26 @@ from kivymd.uix.button import MDIconButton
 from voice import voice_detect
 import time
 import tensorflow_hub as hub
+import pyrebase
+from download_vid import fire_base_download
+
+
+
+
+############################################## Fire Base Keys#############################################################################
+config = {
+  'apiKey': os.getenv('firebase_api_key'),
+  'authDomain': "alert-sys-5b1b9.firebaseapp.com",
+  'projectId': "alert-sys-5b1b9",
+  'storageBucket': "alert-sys-5b1b9.appspot.com",
+  'messagingSenderId': "524250563384",
+  'appId': "1:524250563384:web:6e2358c3498d6b1c5d77cd",
+  'measurementId': "G-EFNXPD2W04",
+  'serviceAccount':'serviceAccount.json',
+  'databaseURL':'https://alert-sys-5b1b9-default-rtdb.firebaseio.com/'
+  }
+fire_base = pyrebase.initialize_app(config)
+storage = fire_base.storage()
 ###################################################### Models ###################################################################################
 
 model1 = hub.load('https://tfhub.dev/google/movenet/multipose/lightning/1')
@@ -169,6 +189,7 @@ class apps(MDApp):
         self.threshold = 0.3
         self.action = 'normal'
         self.color = (0,255,0)
+        self.fire_base = fire_base_download()
        
 ####################################################### Picture change in main and sign pages #######################################################################
     def select_path(self, path):
@@ -519,25 +540,27 @@ class apps(MDApp):
             return frame
   ##############################################################################################################################################  
     def capture_vid(self):
-        
-            self.vid_i = self.vid_i + 1
-            # Define the output video filename
-            output_video = f'bilal_{self.vid_i}.avi'
-            
+            temp_filename = 'temp_video.avi'
+                
             # Get the height and width of the frames
             height, width, channels = self.vid_frame[0].shape
             
             # Define the codec and create a VideoWriter object
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            video_out = cv2.VideoWriter(output_video, fourcc, 5.0, (width, height))
+            video_out = cv2.VideoWriter(temp_filename, fourcc, 5.0, (width, height))
             
-            # Iterate through the frames in the 'fs' array and write each frame to the video
+           
             for fr in self.vid_frame[-15:]:
                 video_out.write(fr)
             
             # Release the VideoWriter object
             video_out.release()
-           
+
+            filename = f'violence_videos/{int(time.time())}.avi'
+
+            storage.child(filename).put(temp_filename)
+            os.remove(temp_filename)
+                    
 ##########################################################################################################################################
     def loop_through_people(self, frame, keypoints_with_scores, edges, confidence_threshold):
         for person in keypoints_with_scores:
@@ -576,24 +599,44 @@ class apps(MDApp):
 
 ############################################# Open saved violence folder and show in kivymd app  ###########################################
     def history_view(self):
+        self.fire_base.fire()
         
         history_screen = self.root.get_screen('history')
         files = os.listdir(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
         if self.cls:
             for i in files:
                 item = OneLineAvatarIconListItem(text=f"{i}")
-                item.bind(on_release=self.on_item_click)
                 image = IconLeftWidget(icon="play-circle-outline")
+                image.bind(on_release=lambda widget, text=item.text: self.on_item_click(text))
+                image1 = IconRightWidget(icon="delete")
+                image1.bind(on_release=lambda widget, text=item.text: self.del_item(text))
+
                 item.add_widget(image)
+                item.add_widget(image1)
                 history_screen.ids.history_list.add_widget(item)
+
+            history_screen.ids.history_list.canvas.ask_update()
                 
-                self.cls = False
+            self.cls = False
 
  ############################################### Dark and Light Mode Changer ################################################################################               
-    def on_item_click(self, instance):
-        add = f"E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app/videos/{instance.text}"
+    def on_item_click(self, text):
+        add = f"E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app/videos/{text}"
         self.root.get_screen('video_screen').ids.video_player.source = add
         self.screen.current = 'video_screen'
+    
+    def del_item(self, text):
+        delete = f"E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app/videos/{text}"
+        os.remove(delete)
+
+        history_screen = self.root.get_screen('history')
+        history_list = history_screen.ids.history_list
+        for item in history_list.children:
+            if isinstance(item, OneLineAvatarIconListItem) and item.text == text:
+                history_list.remove_widget(item)
+                break
+    
+        history_list.canvas.ask_update()
 
     def switch_theme_style(self):
         self.theme_cls.primary_palette = (

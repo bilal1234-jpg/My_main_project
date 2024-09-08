@@ -26,3 +26,5 @@ videos/
 *.db
 
 *.txt
+
+*.json
