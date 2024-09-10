@@ -17,7 +17,6 @@ helper1 = '''
 ScreenManager:
     LoginScreen:
     SignupScreen:
-    MainScreeen:
     ForgotScreen:
     HistoryScreen:
     Video_screen:
@@ -224,181 +223,7 @@ ScreenManager:
                 app.add_user()
                 
                 
-
-            
-
-<MainScreeen>:
-    name: 'main'
-                        
-    MDScreen:
-
-        MDNavigationLayout:
-
-            MDScreenManager:
-
-                MDScreen:
-                    BoxLayout:
-                        orientation: 'vertical'
-                        spacing: dp(10)
-                        padding: dp(5)
-                        halign :'center'
-                        size_hint:1,1
-
-                        MDTopAppBar:
-                            id: email
-                            title: " "
-                            use_overflow: True
-                            elevation: 4
-                            pos_hint: {"top": 1}
-                            specific_text_color: "#4a4939"
-                            left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
-                            right_action_items:[['camera-flip',lambda x:app.camera_flip(),'Front']]
-                                                     
-                        FloatLayout:
-                            
-                            
-                            Image:
-                                id: camera_feed
-                                source: 'upload.png' 
-                                size_hint_x: 2
-                               
-                                pos_hint: {'center_y': 0.5, 'center_x':0.5} 
-                                allow_stretch: True 
-                                
-
-                            # MDIconButton:  
-                            #     icon: 'fullscreen'
-                            #     size_hint_y: None  
-                            #     pos_hint: {'center_y': 0.02, 'center_x':0.7} 
-                            #     on_release: app.toggle_fullscreen()  
-
-                        BoxLayout:
-                            orientation: 'horizontal'
-                            spacing: dp(5)
-                            padding:dp(20)
-                            size_hint_y: None
-                            pos_hint: {'center_x': 0.5} 
-                            height: dp(50)
-
-                            MDRectangleFlatButton:
-                                text: 'Start Detection'
-                                halign:'center'
-                                size_hint: 0.1,None
-                                pos_hint: {'center_y': 0.001} 
-                                on_release: app.main_page()
-
-                            MDRectangleFlatButton:
-                                text: 'Stop Detection'
-                                halign:'center'
-                                size_hint: 0.1,None
-                                pos_hint: {'center_y': 0.001} 
-                                on_release: app.stop()
-                        
-                        BoxLayout:
-                            orientation: 'horizontal'
-                            padding:dp(20)
-                            size_hint_y: None
-                            
-                            
-
-                            MDBottomNavigation:
-                                panel_color: "lightgrey"
-                                selected_color_background: 0, 0, 1, .4
-                                text_color_active: 0, 0, 0, 1
-                                text_color_normal: 0, 0, 0.5, 1
-                                shadow_radius: 6
-                                pos_hint: {'center_y': 0.1}
-
-                                MDBottomNavigationItem:
-                                    id:upload_btn_vid
-                                    text: 'Upload'
-                                    icon: 'image'
-                                    on_tab_release:
-                                        
-                                        app.open_file_manager()
-
-                                MDBottomNavigationItem:
-                                    id:mic
-                                    text: 'Mic off'
-                                    icon: 'microphone-variant-off'
-                                    on_tab_release:app.mic_open()
-                                    
-
-                                MDBottomNavigationItem:
-                                    
-                                    text: 'History'
-                                    icon: 'history'
-                                    on_tab_release : 
-                                        root.manager.current = 'history'
-                                        app.history_view()
-                                
-
-                             
-
-
-            MDNavigationDrawer:
-                id: nav_drawer
-                radius: (0, 16, 16, 0)
-
-                BoxLayout:
-                    orientation: 'vertical'
-
-                    MDNavigationDrawerMenu:
-
-                        FitImage:
-                            id: fit_image3
-                            source: 'image.png'
-                            size_hint: None, None
-                            size: dp(150), dp(150)  
-                            radius: [150, 150, 150, 150]
-                            halign: 'right'
-                    
-
-                        MDNavigationDrawerHeader:
-                            id: draw_name
-                            title: "Welcome"
-                            title_color: "#4a4939"
-                            text: "Header text"
-                            spacing: "4dp"
-                            padding: "12dp", 0, 0, "56dp"
-
-                        MDNavigationDrawerLabel:
-                            id:email_drawer
-                            bold: True
-                            font_size : '24sp'
-                            text: " "
-
-                        DrawerClickableItem:
-                            icon: "face-man-profile"
-                            text_right_color: "#4a4939"
-                            text: "Profile"
-
-                        DrawerClickableItem:
-                            icon: "account-details"
-                            text: "Detail"
-
-                        DrawerClickableItem:
-                            icon: "logout"
-                            text: "Logout"
-                            on_release: app.logout()
-
-
-                        MDNavigationDrawerDivider:
-
-                    
-
-                        DrawerClickableItem:
-                            
-                            text: 'Dark or Light'
-                            icon: 'theme-light-dark'
-                            on_release:app.switch_theme_style()    
-
-                    
-            
-            
-                
-                
-
+   
 <ForgotScreen>:
     name: 'forgotpass'
     MDBoxLayout:
@@ -456,17 +281,92 @@ ScreenManager:
            
 <HistoryScreen>:
     name: 'history'
-    BoxLayout:
-        orientation: 'vertical'
+    
+    MDNavigationLayout:
 
-        MDIconButton:
-            icon: "keyboard-backspace"
-            pos_hint: {'center_x': 0.1}
-            on_release: root.manager.current = 'main'
+        MDScreenManager:
 
-        ScrollView:
-            MDList:
-                id: history_list
+            MDScreen:
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: dp(10)
+                    padding: dp(5)
+                    halign :'center'
+                    size_hint:1,1
+
+                    MDTopAppBar:
+                        id: email
+                        title: " "
+                        use_overflow: True
+                        elevation: 4
+                        pos_hint: {"top": 1}
+                        specific_text_color: "#4a4939"
+                        left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
+                        
+
+                    
+
+                    ScrollView:
+                        MDList:
+                            id: history_list
+
+                            
+        MDNavigationDrawer:
+            id: nav_drawer
+            radius: (0, 16, 16, 0)
+
+            BoxLayout:
+                orientation: 'vertical'
+
+                MDNavigationDrawerMenu:
+
+                    FitImage:
+                        id: fit_image3
+                        source: 'image.png'
+                        size_hint: None, None
+                        size: dp(150), dp(150)  
+                        radius: [150, 150, 150, 150]
+                        halign: 'right'
+                
+
+                    MDNavigationDrawerHeader:
+                        id: draw_name
+                        title: "Welcome"
+                        title_color: "#4a4939"
+                        text: "Header text"
+                        spacing: "4dp"
+                        padding: "12dp", 0, 0, "56dp"
+
+                    MDNavigationDrawerLabel:
+                        id:email_drawer
+                        bold: True
+                        font_size : '24sp'
+                        text: " "
+
+                    DrawerClickableItem:
+                        icon: "face-man-profile"
+                        text_right_color: "#4a4939"
+                        text: "Profile"
+
+                    DrawerClickableItem:
+                        icon: "account-details"
+                        text: "Detail"
+
+                    DrawerClickableItem:
+                        icon: "logout"
+                        text: "Logout"
+                        on_release: app.logout()
+
+
+                    MDNavigationDrawerDivider:
+
+                
+
+                    DrawerClickableItem:
+                        
+                        text: 'Dark or Light'
+                        icon: 'theme-light-dark'
+                        on_release:app.switch_theme_style()    
 
 <Video_screen>:
     name: 'video_screen'

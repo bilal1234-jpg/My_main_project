@@ -23,14 +23,13 @@ from kivy.animation import Animation
 from  kivymd.uix.floatlayout import FloatLayout
 from  kivymd.uix.label import MDLabel
 from kivy.uix.image import Image
-from kivy.graphics import Canvas 
-from kivy.graphics import Rectangle 
 from kivymd.uix.button import MDIconButton
 from voice import voice_detect
 import time
 import tensorflow_hub as hub
 import pyrebase
 from download_vid import fire_base_download
+
 
 
 
@@ -190,6 +189,7 @@ class apps(MDApp):
         self.action = 'normal'
         self.color = (0,255,0)
         self.fire_base = fire_base_download()
+        self.refresh = False
        
 ####################################################### Picture change in main and sign pages #######################################################################
     def select_path(self, path):
@@ -277,6 +277,8 @@ class apps(MDApp):
                         self.root.current = 'main'
                         self.root.get_screen('login').ids.username.text = ''
                         self.root.get_screen('login').ids.password.text =  ''
+                        self.refresh = True
+                        self.on_start()
                     else:
                         dialog = MDDialog(
                         title="Warning",
@@ -305,6 +307,8 @@ class apps(MDApp):
                         self.root.current = 'main'
                         self.root.get_screen('login').ids.username.text = ''
                         self.root.get_screen('login').ids.password.text = ''
+                        self.refresh = True
+                        self.on_start()
                     else:
                         dialog = MDDialog(
                         title="Warning",
@@ -330,6 +334,12 @@ class apps(MDApp):
             size_hint=(0.5, 0.3)
                 )
             dialog.open()   
+
+    def logout(self):
+        self.screen.current = 'login'
+        self.refresh = False
+        Clock.unschedule(self.refresh_event)
+
  
 ################################################## Forgot Password SMTP #################################################################
     def forgot_password(self):
@@ -597,27 +607,40 @@ class apps(MDApp):
             self.root.get_screen('main').ids.camera_feed.source = 'project_app/upload.png'  
         
 
-############################################# Open saved violence folder and show in kivymd app  ###########################################
-    def history_view(self):
-        self.fire_base.fire()
+#############################################  Open saved violence folder and show in kivymd app  ###########################################
+    def on_start(self):
+        # Schedule refresh_history_view to be called every 5 seconds
+        if self.refresh:
+            self.refresh_event = Clock.schedule_interval(self.history_view, 5)
+
+    def history_view(self, *args):
+       
         
         history_screen = self.root.get_screen('history')
-        files = os.listdir(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
-        if self.cls:
-            for i in files:
-                item = OneLineAvatarIconListItem(text=f"{i}")
-                image = IconLeftWidget(icon="play-circle-outline")
-                image.bind(on_release=lambda widget, text=item.text: self.on_item_click(text))
-                image1 = IconRightWidget(icon="delete")
-                image1.bind(on_release=lambda widget, text=item.text: self.del_item(text))
+        try:
+            files = os.listdir(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
+            
+        except:
+            os.makedirs(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
+            files = os.listdir(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
+           
+        thread = threading.Thread(target = self.fire_base.fire)
+        thread.start()
 
-                item.add_widget(image)
-                item.add_widget(image1)
-                history_screen.ids.history_list.add_widget(item)
+        history_screen.ids.history_list.clear_widgets()
+        for i in files:
+            item = OneLineAvatarIconListItem(text=f"{i}")
+            image = IconLeftWidget(icon="play-circle-outline")
+            image.bind(on_release=lambda widget, text=item.text: self.on_item_click(text))
+            image1 = IconRightWidget(icon="delete")
+            image1.bind(on_release=lambda widget, text=item.text: self.del_item(text))
 
-            history_screen.ids.history_list.canvas.ask_update()
+            item.add_widget(image)
+            item.add_widget(image1)
+            history_screen.ids.history_list.add_widget(item)
+
                 
-            self.cls = False
+            
 
  ############################################### Dark and Light Mode Changer ################################################################################               
     def on_item_click(self, text):
@@ -703,7 +726,7 @@ class apps(MDApp):
         sm.add_widget(About_us(name='about_us'))
         sm.add_widget(Start_page_UI(name = 'start_page'))
         self.screen.current = 'start_page'
-        self.cls = True
+        
         return self.screen
 ###########################################################  END OF CODE  ######################################################   
     
