@@ -25,7 +25,7 @@ class fire_base_download:
     fire_base = pyrebase.initialize_app(config)
     storage = fire_base.storage()
     # storage.child('bilal_3.avi').put('bilal_3.avi')
-    output_folder = r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos'
+    output_folder = r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\Client_side\videos'
     if not os.path.exists(output_folder):
       os.makedirs(output_folder, exist_ok= True)
 
@@ -44,7 +44,7 @@ class fire_base_download:
         
           output_f = os.path.join(output_folder,f'{time.time()}-{i}.avi')
           storage.download(l,output_f)
-          sound_file = r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\beep.mp3'
+          sound_file = r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\Client_side\beep.mp3'
           playsound(sound_file)
     except:
       print('not_found')

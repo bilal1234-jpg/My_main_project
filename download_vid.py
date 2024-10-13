@@ -34,18 +34,18 @@ class fire_base_download:
       all_files = storage.list_files()
       
       for i, file in enumerate(all_files):
-        with open('h.json', 'r') as f:
+        with open('text_json_files/h.json', 'r') as f:
           data = json.load(f)
         if i > int(data['num']):
           l = file.name
-          with open('h.json', 'w') as f:
+          with open('text_json_files/h.json', 'w') as f:
             data['num'] = i
             json.dump(data,f)
         
           output_f = os.path.join(output_folder,f'{time.time()}-{i}.avi')
           storage.download(l,output_f)
-          sound_file = r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\beep.mp3'
-          playsound(sound_file)
+          # sound_file = r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\beep.mp3'
+          # playsound(sound_file)
     except:
       print('not_found')
   

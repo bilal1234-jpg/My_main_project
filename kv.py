@@ -32,7 +32,7 @@ ScreenManager:
 
         FitImage:
             id: fit_image1
-            source: 'violence.png'
+            source: 'pictures/violence.png'
             size_hint: None, None
             size: 100, 100  
             pos_hint: {'center_y': 0.9, 'center_x': 0.2}
@@ -154,7 +154,7 @@ ScreenManager:
                 pos_hint: {'center_y': 0.4}
         FitImage:
             id: fit_image2  
-            source: 'sign.png'
+            source: 'pictures/sign.png'
             size_hint: None, None
             size: 150, 150  
             pos_hint: {'center_x': 0.52}
@@ -259,7 +259,7 @@ ScreenManager:
                             
                             Image:
                                 id: camera_feed
-                                source: 'upload.png' 
+                                source: 'pictures/upload.png' 
                                 size_hint_x: 2
                                
                                 pos_hint: {'center_y': 0.5, 'center_x':0.5} 
@@ -347,7 +347,7 @@ ScreenManager:
 
                         FitImage:
                             id: fit_image3
-                            source: 'image.png'
+                            source: 'pictures/image.png'
                             size_hint: None, None
                             size: dp(150), dp(150)  
                             radius: [150, 150, 150, 150]
@@ -422,7 +422,7 @@ ScreenManager:
 
             Image:
                 pos_hint: {'center_y': 0.5}
-                source: 'forgot1.jpg'
+                source: 'pictures/forgot1.jpg'
                 size_hint: 1.9, 1.9
                 radius: [5000, 5000, 5000, 5000]
                 
