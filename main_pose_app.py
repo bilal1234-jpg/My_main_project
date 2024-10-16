@@ -2,7 +2,6 @@ from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import Screen , ScreenManager
 from kivymd.uix.filemanager import MDFileManager
-from  sql_app import User , session
 from kivy.properties import StringProperty
 from kivymd.uix.dialog import MDDialog
 import smtplib
@@ -17,60 +16,24 @@ import threading
 from kivymd.uix.list import OneLineAvatarIconListItem
 from kivymd.uix.list import  IconLeftWidget, IconRightWidget
 from kivy.properties import BooleanProperty
-from kv import helper1
 from kivy.core.window import Window  
 from kivy.animation import Animation
 from  kivymd.uix.floatlayout import FloatLayout
 from  kivymd.uix.label import MDLabel
 from kivy.uix.image import Image
 from kivymd.uix.button import MDIconButton
-from voice import voice_detect
 import time
 import tensorflow_hub as hub
-import pyrebase
+import re
+import sys
+
+# Myself modules
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+from pyrebase_init import storage
 from download_vid import fire_base_download
-
-
-
-
-
-############################################## Fire Base Keys#############################################################################
-config = {
-  'apiKey': os.getenv('firebase_api_key'),
-  'authDomain': "alert-sys-5b1b9.firebaseapp.com",
-  'projectId': "alert-sys-5b1b9",
-  'storageBucket': "alert-sys-5b1b9.appspot.com",
-  'messagingSenderId': "524250563384",
-  'appId': "1:524250563384:web:6e2358c3498d6b1c5d77cd",
-  'measurementId': "G-EFNXPD2W04",
-  'serviceAccount':'text_json_files/serviceAccount.json',
-  'databaseURL':'https://alert-sys-5b1b9-default-rtdb.firebaseio.com/'
-  }
-fire_base = pyrebase.initialize_app(config)
-storage = fire_base.storage()
-###################################################### Models ###################################################################################
-multipose_add = r"E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\pre_train\multipose_lightning"
-thunder_add = r"E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\pre_train\thunder"
-
-model1 = hub.load(multipose_add)
-movenet_multi = model1.signatures['serving_default']
-
-model = hub.load(thunder_add)
-movenet_thunder = model.signatures['serving_default']
-
-
-# model_num1 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final1.h5')
-# model_num2 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final.h5')
-# model_num3 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final2.h5')
-# model_num4 =  models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final1.h5')
-# model_num5 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final.h5')
-# model_num6 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final2.h5')
-
-# model_num1 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final.h5')
-model_num2 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final1.h5')
-model_num3 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final2.h5')
-model_num4 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final3.h5')
-
+from voice import voice_detect
+from kv import helper1
+from  sql_app import User , session
 ############################################################ EDGES ###############################################################3
 
 EDGES = {
@@ -95,29 +58,48 @@ EDGES = {
 }
 
 
-
-
 ####################################################### Screens Class #########################################################################
 
 
-
+kv_add =  os.path.dirname(os.path.abspath(__file__))
 
 class LoginScreen(Screen):
     text = StringProperty()
+    def __init__(self, **kwargs):
+            super(LoginScreen, self).__init__(**kwargs)
+            
+
+    def on_enter(self):  # This method is called when the screen is displayed
+        Clock.schedule_once(self.change_fit_image_source, 0)
+        
+
+    def change_fit_image_source(self,dt):
+        new_source = os.path.join(kv_add, 'assets', 'images', 'violence.png')
+        self.ids.fit_image1.source = new_source
+        print(f'Source of fit_image1 changed to: {self.ids.fit_image1.source}')
+    
+    
 class SignupScreen(Screen):
     text = StringProperty()  
     vid_img_scr = BooleanProperty(True)
+    def on_enter(self):
+        self.ids.fit_image2.source = os.path.join(kv_add, 'assets','images','sign.png')
 class MainScreeen(Screen):
     vid_img_scr = BooleanProperty(True)
+    def on_enter(self):
+        self.ids.camera_feed.source = os.path.join(kv_add, 'assets','images','upload.png')
+        
 class ForgotScreen(Screen):
-    pass
+    def on_enter(self):
+        self.ids.detect_screen.source = os.path.join(kv_add, 'assets','images','forgot1.jpg')
 class HistoryScreen(Screen):
     pass
 class Video_screen(Screen):
     pass
 class About_us(Screen):
     pass
-
+class Loading(Screen):
+    pass
 
 
 class Start_page_UI(Screen):
@@ -126,20 +108,25 @@ class Start_page_UI(Screen):
         # You can still define and add widgets here
         # with self.canvas.before:
         #     Rectangle(source='bg6.jpg', pos=self.pos, size=Window.size)
-        
+        base_add = os.path.dirname(os.path.abspath(__file__))
+        relative_add_pic = os.path.join(base_add,'assets','images')
+
         box_layout = FloatLayout()
-        self.image = Image(source='pictures/logo2.png', pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
+
+        self.image = Image(source=os.path.join(relative_add_pic,'logo2.png'), pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
         self.md_label = MDLabel(text='ChildGuard', halign='center', size=(self.height*0, self.width*0), size_hint_y=None, font_style='H4', bold=True, theme_text_color="Custom",
             text_color=(0,0,0,1))
+        
         self.animate_lable()
         box_layout.add_widget(self.md_label)
         self.animate_image()
         self.add_widget(self.image)
-        button1 = MDIconButton(icon = "pictures/next-button.png", pos_hint={"center_x": .5, 'center_y': 0.1} ,icon_size =  "100sp", on_release=self.login)
+        button1 = MDIconButton(icon = os.path.join(relative_add_pic,'next-button.png'), pos_hint={"center_x": .5, 'center_y': 0.1} ,icon_size =  "100sp", on_release=self.login)
         
         box_layout.add_widget(button1)
         self.add_widget(box_layout)
-    
+
+        
     def login(self, *args):
         if self.manager:
             self.manager.current = 'login'
@@ -192,6 +179,57 @@ class apps(MDApp):
         self.color = (0,255,0)
         self.fire_base = fire_base_download()
         self.refresh = False
+        self.value = 0
+        self.rdl1 = 0
+        self.base_address = os.path.dirname(os.path.abspath(__file__))
+
+
+
+    def models_th(self):
+        ###################################################### Models ###################################################################################
+        model_relitive_path = os.path.join('assets', 'models')
+        pre_model_relitive_path = os.path.join('assets', 'pre_train')
+
+        multipose_add = os.path.join(self.base_address, pre_model_relitive_path,'multipose_lightning')
+        thunder_add = os.path.join(self.base_address, pre_model_relitive_path,'thunder')
+        
+        model1 = hub.load(multipose_add)
+        self.movenet_multi = model1.signatures['serving_default']
+
+        model = hub.load(thunder_add)
+        self.movenet_thunder = model.signatures['serving_default']
+
+
+        # model_num1 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final1.h5')
+        # model_num2 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final.h5')
+        # model_num3 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_semi_final2.h5')
+        # model_num4 =  models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final1.h5')
+        # model_num5 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final.h5')
+        # model_num6 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\model_final2.h5')
+
+        # model_num1 = models.load_model(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\two_model_model_final.h5')
+        
+        self.model_num2 = models.load_model(os.path.join(self.base_address, model_relitive_path, 'two_model_model_final1.h5'))
+        self.model_num3 = models.load_model(os.path.join(self.base_address, model_relitive_path, 'two_model_model_final2.h5'))
+        self.model_num4 = models.load_model(os.path.join(self.base_address, model_relitive_path, 'two_model_model_final3.h5'))
+       
+
+   
+    def progress_bar(self, dt):
+        if self.value >= 100:
+            Clock.unschedule(self.progress_bar)
+            Clock.schedule_once(self.switch_screen, 2)
+                
+        else:
+            
+            self.value +=2
+            self.screen.get_screen('load').ids.pd.value = self.value
+
+    
+        
+
+    def switch_screen(self, dt):
+        self.screen.current = 'start_page'
        
 ####################################################### Picture change in main and sign pages #######################################################################
     def select_path(self, path):
@@ -226,6 +264,7 @@ class apps(MDApp):
         return err
 ################################################## Sign Up or register user #################################################################                
     def add_user(self):
+        
         name = self.root.get_screen('signup').ids.name.text
         email = self.root.get_screen('signup').ids.email.text
         password = self.root.get_screen('signup').ids.password.text
@@ -240,7 +279,7 @@ class apps(MDApp):
                 self.root.get_screen('signup').ids.name.text = ''
                 self.root.get_screen('signup').ids.email.text = ''
                 self.root.get_screen('signup').ids.password.text = ''
-                self.root.get_screen('signup').ids.fit_image2.source = 'pictures/sign.png' 
+                self.root.get_screen('signup').ids.fit_image2.source = os.path.join(self.base_address,'assets','images','sign.png')
                 
              else:
                  self.root.get_screen('signup').ids.email.helper_text = 'Enter correct Email first'
@@ -254,6 +293,7 @@ class apps(MDApp):
              dialog.open()
 ################################################## Check user use name or email in login ##########################################################################
     def login_diplay(self):
+        
         err = self.root.get_screen('login').ids.username.error
         if err == True:
             self.root.get_screen('login').ids.username.helper_text = 'Name'
@@ -281,6 +321,7 @@ class apps(MDApp):
                         self.root.get_screen('login').ids.password.text =  ''
                         self.refresh = True
                         self.on_start()
+                        
                     else:
                         dialog = MDDialog(
                         title="Warning",
@@ -340,7 +381,7 @@ class apps(MDApp):
     def logout(self):
         self.screen.current = 'login'
         self.refresh = False
-        Clock.unschedule(self.refresh_event)
+        Clock.unschedule(self.history_view)
 
  
 ################################################## Forgot Password SMTP #################################################################
@@ -351,7 +392,7 @@ class apps(MDApp):
             if database_check:
                 try:
                     connection = smtplib.SMTP_SSL("smtp.gmail.com", 465)  
-                    connection.login(user='ijazb1622@gmail.com', password='xyz')   
+                    connection.login(user='ijazb1622@gmail.com', password=os.getenv('smtp'))   
                     connection.sendmail(from_addr='ijazb1622@gmail.com',
                                         to_addrs=f"{database_check.email}", 
                                         msg=f"Subject:Your reset password from Bilal Blog\n\n Your Password:{database_check.password}")
@@ -463,8 +504,8 @@ class apps(MDApp):
             img = frame.copy()
             img = tf.image.resize(tf.expand_dims(img, axis=0), (256, 256))
             input_img = tf.cast(img, dtype=tf.int32)
-            results = movenet_thunder(input_img)
-            result2 = movenet_multi(input_img)
+            results = self.movenet_thunder(input_img)
+            result2 = self.movenet_multi(input_img)
             
             keypoints_with_scores = results['output_0'].numpy()[:, :, :51].reshape((1, 17, 3))
             keypoints_with_scores_boxes = result2['output_0'].numpy()[0]
@@ -519,9 +560,9 @@ class apps(MDApp):
                 if len(self.sequence)==10:
                     
                     # res1 = model_num1.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
-                    res2 = model_num2.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
-                    res3 = model_num3.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
-                    res4 = model_num4.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
+                    res2 = self.model_num2.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
+                    res3 = self.model_num3.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
+                    res4 = self.model_num4.predict(np.expand_dims(self.sequence, axis=0), verbose=0)[0]
                 
                     
                     res = np.mean([res2,res3,res4], axis=0)
@@ -606,28 +647,29 @@ class apps(MDApp):
         if self.camera:
             self.capture.release()
             cv2.destroyAllWindows()
-            self.root.get_screen('main').ids.camera_feed.source = 'pictures/upload.png'
+            self.root.get_screen('main').ids.camera_feed.source = os.path.join(self.base_address,'assets','images','upload.png')
         
 
 #############################################  Open saved violence folder and show in kivymd app  ###########################################
     def on_start(self):
         # Schedule refresh_history_view to be called every 5 seconds
         if self.refresh:
-            self.refresh_event = Clock.schedule_interval(self.history_view, 1000)
+            Clock.schedule_interval(self.history_view, 20)
 
-    def history_view(self, *args):
+    def history_view(self,*args):
        
         
         history_screen = self.root.get_screen('history')
-        try:
-            files = os.listdir(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
-            
-        except:
-            os.makedirs(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
-            files = os.listdir(r'E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\Kivy_app\project_app\videos')
-           
-        thread = threading.Thread(target = self.fire_base.fire)
-        thread.start()
+        output_folder = os.path.join(self.base_address, 'assets','videos')
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+            files = []
+        else:
+            files = os.listdir(output_folder)
+        files = sorted(files, key=lambda x: int(re.search(r'(\d+)', x).group()))
+        
+        downth = threading.Thread(target=self.fire_base.fire)
+        downth.start()
 
         history_screen.ids.history_list.clear_widgets()
         for i in files:
@@ -636,7 +678,6 @@ class apps(MDApp):
             image.bind(on_release=lambda widget, text=item.text: self.on_item_click(text))
             image1 = IconRightWidget(icon="delete")
             image1.bind(on_release=lambda widget, text=item.text: self.del_item(text))
-
             item.add_widget(image)
             item.add_widget(image1)
             history_screen.ids.history_list.add_widget(item)
@@ -646,13 +687,13 @@ class apps(MDApp):
 
  ############################################### Dark and Light Mode Changer ################################################################################               
     def on_item_click(self, text):
-        add = f"E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app/videos/{text}"
-        self.root.get_screen('video_screen').ids.video_player.source = add
+        add = os.path.join(self.base_address,'assets','videos')
+        self.root.get_screen('video_screen').ids.video_player.source = f'{add}/{text}'
         self.screen.current = 'video_screen'
     
     def del_item(self, text):
-        delete = f"E:/Bilal/PYTHON/ML/Unsupervised/Deep_Learning/Object_detection_API/Human_pose_tensorflow/Kivy_app/project_app/videos/{text}"
-        os.remove(delete)
+        delete =  os.path.join(self.base_address,'assets','videos')
+        os.remove(f'{delete}/{text}')
 
         history_screen = self.root.get_screen('history')
         history_list = history_screen.ids.history_list
@@ -727,7 +768,13 @@ class apps(MDApp):
         sm.add_widget(Video_screen(name='video_screen'))
         sm.add_widget(About_us(name='about_us'))
         sm.add_widget(Start_page_UI(name = 'start_page'))
-        self.screen.current = 'start_page'
+        sm.add_widget(Loading(name = 'load'))
+        self.screen.current = 'load'
+
+        Clock.schedule_interval(self.progress_bar,1)
+        t = threading.Thread(target=self.models_th, daemon=True)
+        t.start()
+        
         
         return self.screen
 ###########################################################  END OF CODE  ######################################################   
