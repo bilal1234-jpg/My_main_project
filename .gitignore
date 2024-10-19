@@ -28,3 +28,10 @@ videos/
 *.txt
 
 *.json
+
+build/
+
+
+dist/
+
+KivyMD/

@@ -93,7 +93,9 @@ ScreenManager:
             size_hint: 0.2, None
             width: dp(100)
             pos_hint: {"center_x": 0.5,'center_y': 0.37}
-            on_release: app.login_user()
+            on_release: 
+                app.login_user()
+                
             
         
       
@@ -130,21 +132,20 @@ ScreenManager:
     name: 'signup'
     BoxLayout:
         orientation: 'vertical'
-        padding: dp(5)
-        spacing: dp(15)
-        halign:'center'
-        pos_hint: {'center_y': 0.55}
-        adaptive_height: True
-        adaptive_width: True
+        padding: [20, 10, 20, 10]  # Add padding for better spacing
+        spacing: 20
+        pos_hint: {'center_y': 0.7}
+        
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
+            height: dp(50)
             pos_hint: {'center_x': 0.5}
 
             MDIconButton:
                 halign: "center"
                 icon: "keyboard-backspace"
-                pos_hint: {'center_y': 0.4}
+                pos_hint: {'center_y': 0.5}
                 on_release: root.manager.current = 'login'
 
             MDLabel:
@@ -152,75 +153,93 @@ ScreenManager:
                 text: "Personal Information"
                 bold: True
                 font_size: '24sp'
-                pos_hint: {'center_y': 0.4}
-        FitImage:
-            id: fit_image2  
-            source: ''
-            size_hint: None, None
-            size: 150, 150  
-            pos_hint: {'center_x': 0.52}
-            radius: [150, 150, 150, 150]
+                pos_hint: {'center_y': 0.5}
 
-        MDRectangleFlatButton:
-            text: "Upload Image"
-            size_hint: None, None
-            size: 150, 50
-            pos_hint: {'center_x': 0.52}
-            on_release: app.open_file_manager()
-            
-        MDTextField:
-            id: name
-            hint_text: 'Name'
-            mode: "rectangle"
-            pos_hint: {'center_x': 0.52}
-            size_hint_x: None
-            width: 300
-        MDTextField:
-            id: email
-            hint_text: 'Email'
-            mode: "rectangle"
-            pos_hint: {'center_x': 0.52}
-            size_hint_x: None
-            width: 300
-            helper_text: "user@gmail.com"
-            validator: "email"
-            on_text: app.error()
         BoxLayout:
-            orientation: 'horizontal'
-            pos_hint: {'center_x': 0.52}
-            size_hint_x: None
-            width: 300
-            adaptive_height: True
-            
-               
-            MDTextField:
-                id: password
-                hint_text: 'Password'
-                text: root.text
-                password: True
-                icon_left: "key-variant"
-                mode: "rectangle"
-                size_hint_x: None
-                width: 300  
-                pos_hint: {'center_y': 0.56}
+            orientation: 'vertical'
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: dp(30)
+            padding: [0, 20]
 
-            MDIconButton:
-                halign: "center"
-                icon: "eye-off"
-                pos_hint: {'center_y': 0.55} 
-                theme_text_color: "Hint"
-                on_release:
-                    self.icon = "eye" if self.icon == "eye-off" else "eye-off"
-                    password.password = False if password.password is True else True
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: None, None
+                size: dp(200), dp(200)
+                pos_hint: {'center_x': 0.5}
+                spacing: dp(10)
+
+                FitImage:
+                    id: fit_image2  
+                    source: ''
+                    size_hint: None, None
+                    size: dp(150), dp(150)
+                    pos_hint: {'center_x': 0.5}
+                    radius: [dp(75), dp(75), dp(75), dp(75)]
+
+                MDRectangleFlatButton:
+                    text: "Upload Image"
+                    size_hint: None, None
+                    size: dp(150), dp(50)
+                    pos_hint: {'center_x': 0.5}
+                    on_release: app.open_file_manager()
+                
+            MDTextField:
+                id: name
+                hint_text: 'Name'
+                mode: "rectangle"
+                pos_hint: {'center_x': 0.55}
+                size_hint_x: None
+                width: 300
+
+            MDTextField:
+                id: email
+                hint_text: 'Email'
+                mode: "rectangle"
+                pos_hint: {'center_x': 0.5}
+                size_hint_x: None
+                width: 300
+                helper_text: "user@gmail.com"
+                validator: "email"
+                on_text: app.error()
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: dp(60)
+                spacing: dp(10)
+                size_hint_x:None
+                pos_hint: {'center_x': 0.4}
+                
+                
+                MDTextField:
+                    id: password
+                    hint_text: 'Password'
+                    text: root.text
+                    password: True
+                    icon_left: "key-variant"
+                    mode: "rectangle"
+                    size_hint_x: None
+                    width: 300
+                    
+
+                MDIconButton:
+                    halign: "center"
+                    icon: "eye-off"
+                    
+                    theme_text_color: "Hint"
+                    on_release:
+                        self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                        password.password = False if password.password is True else True
 
 
         
         MDRaisedButton:
-            id:sig
+            id: sig
             text: "Update"
-            size_hint: None, None
-            size: 150, 50
-            pos_hint: {'center_x': 0.52}
+            size_hint: 0.4, None
+            height: dp(50)
+            pos_hint: {'center_x': 0.5}
             on_release: 
                 app.add_user()
                 
@@ -331,7 +350,7 @@ ScreenManager:
                                     icon: 'history'
                                     on_tab_release : 
                                         root.manager.current = 'history'
-                                        app.history_view()
+                                      
                                 
 
                              

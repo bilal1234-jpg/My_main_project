@@ -1,6 +1,6 @@
 import os
 from pyrebase_init import storage
-
+from datetime import datetime
 class fire_base_download:
 
     def fire(self):
@@ -32,7 +32,9 @@ class fire_base_download:
                     with open(f'{txt_path}/ex1.txt', 'a') as a_file:
                         a_file.write(f',{l}')
                     print(l)
-                    storage.download(l, f'{output_folder}/logo{i}.avi')
+                    now = datetime.now()
+                    video_time = now.strftime("%d-%m-%Y_%H-%M-%S").replace(':', '-')
+                    storage.download(l, os.path.join(output_folder, f'video_time--{video_time}.avi'))
 
         except Exception as e:
             print(f"An error occurred: {e}")

@@ -7,6 +7,7 @@ from kivymd.uix.dialog import MDDialog
 import smtplib
 import tensorflow as tf
 import cv2
+from kivymd.icon_definitions import md_icons
 from tensorflow.keras import models
 import numpy as np
 import os
@@ -24,8 +25,9 @@ from kivy.uix.image import Image
 from kivymd.uix.button import MDIconButton
 import time
 import tensorflow_hub as hub
-import re
 import sys
+from datetime import datetime
+
 
 # Myself modules
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
@@ -34,7 +36,7 @@ from download_vid import fire_base_download
 from voice import voice_detect
 from kv import helper1
 from  sql_app import User , session
-############################################################ EDGES ###############################################################3
+############################################################ EDGES ###############################################################
 
 EDGES = {
     (0, 1): 'm',
@@ -59,6 +61,9 @@ EDGES = {
 
 
 ####################################################### Screens Class #########################################################################
+
+
+
 
 
 kv_add =  os.path.dirname(os.path.abspath(__file__))
@@ -602,14 +607,16 @@ class apps(MDApp):
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
             video_out = cv2.VideoWriter(temp_filename, fourcc, 5.0, (width, height))
             
-           
+            
             for fr in self.vid_frame[-15:]:
                 video_out.write(fr)
             
             # Release the VideoWriter object
             video_out.release()
+            now = datetime.now()
+            video_time = now.strftime("%d-%m-%Y %H:%M:%S")
 
-            filename = f'violence_videos/{int(time.time())}.avi'
+            filename = f'violence_videos/{video_time}.avi'
 
             storage.child(filename).put(temp_filename)
             os.remove(temp_filename)
@@ -652,13 +659,10 @@ class apps(MDApp):
 
 #############################################  Open saved violence folder and show in kivymd app  ###########################################
     def on_start(self):
-        # Schedule refresh_history_view to be called every 5 seconds
         if self.refresh:
             Clock.schedule_interval(self.history_view, 20)
 
     def history_view(self,*args):
-       
-        
         history_screen = self.root.get_screen('history')
         output_folder = os.path.join(self.base_address, 'assets','videos')
         if not os.path.exists(output_folder):
@@ -666,7 +670,7 @@ class apps(MDApp):
             files = []
         else:
             files = os.listdir(output_folder)
-        files = sorted(files, key=lambda x: int(re.search(r'(\d+)', x).group()))
+        # files = sorted(files, key=lambda x: int(re.search(r'(\d+)', x).group()))
         
         downth = threading.Thread(target=self.fire_base.fire)
         downth.start()
@@ -692,15 +696,18 @@ class apps(MDApp):
         self.screen.current = 'video_screen'
     
     def del_item(self, text):
-        delete =  os.path.join(self.base_address,'assets','videos')
-        os.remove(f'{delete}/{text}')
+        try:
+            delete =  os.path.join(self.base_address,'assets','videos')
+            os.remove(f'{delete}/{text}')
 
-        history_screen = self.root.get_screen('history')
-        history_list = history_screen.ids.history_list
-        for item in history_list.children:
-            if isinstance(item, OneLineAvatarIconListItem) and item.text == text:
-                history_list.remove_widget(item)
-                break
+            history_screen = self.root.get_screen('history')
+            history_list = history_screen.ids.history_list
+            for item in history_list.children:
+                if isinstance(item, OneLineAvatarIconListItem) and item.text == text:
+                    history_list.remove_widget(item)
+                    break
+        except:
+            print('Permission Denied')
     
         history_list.canvas.ask_update()
 
@@ -742,7 +749,7 @@ class apps(MDApp):
                 # Replace with your actual microphone recognition logic
                 self.v.recognize_from_microphone()
             except Exception as e:
-                print(f"Error during microphone recognition: {e}")
+                continue
             time.sleep(1) 
             
 
@@ -769,7 +776,7 @@ class apps(MDApp):
         sm.add_widget(About_us(name='about_us'))
         sm.add_widget(Start_page_UI(name = 'start_page'))
         sm.add_widget(Loading(name = 'load'))
-        self.screen.current = 'load'
+        self.screen.current = 'signup'
 
         Clock.schedule_interval(self.progress_bar,1)
         t = threading.Thread(target=self.models_th, daemon=True)
