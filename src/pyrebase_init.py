@@ -19,7 +19,11 @@ config = {
     'databaseURL':'https://alert-sys-5b1b9-default-rtdb.firebaseio.com/'
 }
 
+try:
+    fire_base = pyrebase.initialize_app(config)
+    db = fire_base.database()
+    storage = fire_base.storage()
 
-fire_base = pyrebase.initialize_app(config)
-db = fire_base.database()
-storage = fire_base.storage()
+except Exception as e:
+        storage = 0
+        print("Error {e}")

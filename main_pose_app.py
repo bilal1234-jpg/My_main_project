@@ -101,8 +101,7 @@ class HistoryScreen(Screen):
     pass
 class Video_screen(Screen):
     pass
-class About_us(Screen):
-    pass
+
 class Loading(Screen):
     pass
 
@@ -187,6 +186,7 @@ class apps(MDApp):
         self.value = 0
         self.rdl1 = 0
         self.base_address = os.path.dirname(os.path.abspath(__file__))
+        self.vioce_violence = ""
 
 
 
@@ -400,7 +400,7 @@ class apps(MDApp):
                     connection.login(user='ijazb1622@gmail.com', password=os.getenv('smtp'))   
                     connection.sendmail(from_addr='ijazb1622@gmail.com',
                                         to_addrs=f"{database_check.email}", 
-                                        msg=f"Subject:Your reset password from Bilal Blog\n\n Your Password:{database_check.password}")
+                                        msg=f"Subject:Your password from Gaurd Violence App is:\n\n Your Password:{database_check.password}")
 
                     connection.quit() 
                     dialog = MDDialog(
@@ -535,7 +535,11 @@ class apps(MDApp):
                     cv2.rectangle(frame, start_point, end_point, self.color,3)
                     bound_boxes.append((xmin*width, ymin*height,xmax*width, ymax*height))
                     collision_detected = self.check_collide(bound_boxes)
-                    cv2.putText(frame, self.action, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 5, cv2.LINE_AA)
+                    cv2.putText(frame, self.action, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                    if self.mic_0_1 ==1:
+                        cv2.putText(frame, f"Violence in voice{self.vioce_violence}", (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+                    
+                    
 
             for person_ in keypoints_with_scores:
           
@@ -577,19 +581,23 @@ class apps(MDApp):
                     # res = (res1+res2)/2
                     self.sequence = []
                         
-                        
-                    if collision_detected: 
-                        
-                        if res[res.argmax()] > 0.10:
-                            self.color = (0,0,255)
-                            self.action = self.actions[res.argmax()]
-                        
-                            if self.action == 'slap' or self.action=='kick':
-                                thread = threading.Thread(target = self.capture_vid)
-                                thread.start()
-                    else:
+                    try:    
+                        if collision_detected: 
+                            
+                            if res[res.argmax()] > 0.10:
+                                self.color = (0,0,255)
+                                self.action = self.actions[res.argmax()]
+                            
+                                if self.action == 'slap' or self.action=='kick':
+                                    thread = threading.Thread(target = self.capture_vid)
+                                    thread.start()
+                        else:
+                            self.color = (0,255,0)
+                            self.action = 'normal'
+                    except UnboundLocalError:
                         self.color = (0,255,0)
                         self.action = 'normal'
+
                         
                     
                     
@@ -598,7 +606,17 @@ class apps(MDApp):
             return frame
   ##############################################################################################################################################  
     def capture_vid(self):
-            temp_filename = 'temp_video.avi'
+            
+            internet_dir = os.path.join(self.base_address, 'assets','lose_internet_connections_videos')
+
+            if not os.path.exists(internet_dir):
+                os.makedirs(internet_dir, exist_ok=True)
+
+
+            now = datetime.now()
+            video_time = now.strftime("%d-%m-%Y %H:%M:%S")
+            video_time2 = now.strftime("%d-%m-%Y_%H-%M-%S").replace(':', '-')
+            temp_filename = os.path.join(internet_dir,f'internet_connection_fail{video_time2}.avi')
                 
             # Get the height and width of the frames
             height, width, channels = self.vid_frame[0].shape
@@ -613,13 +631,15 @@ class apps(MDApp):
             
             # Release the VideoWriter object
             video_out.release()
-            now = datetime.now()
-            video_time = now.strftime("%d-%m-%Y %H:%M:%S")
+            
 
             filename = f'violence_videos/{video_time}.avi'
-
-            storage.child(filename).put(temp_filename)
-            os.remove(temp_filename)
+            if storage!=0:
+                storage.child(filename).put(temp_filename)
+                os.remove(temp_filename)
+            
+                
+            
                     
 ##########################################################################################################################################
     def loop_through_people(self, frame, keypoints_with_scores, edges, confidence_threshold):
@@ -729,7 +749,7 @@ class apps(MDApp):
             
             if not self.mic_running:
                 self.mic_running = True
-                self.mic_thread = threading.Thread(target=self.recognize_from_microphone)
+                self.mic_thread = threading.Thread(target=self.recognize_from_micro)
                 self.mic_thread.start()
 
 
@@ -743,11 +763,11 @@ class apps(MDApp):
                 self.mic_thread.join()  # Wait for the thread to finish
                 self.mic_thread = None
     
-    def recognize_from_microphone(self):
+    def recognize_from_micro(self):
         while self.mic_running:
             try:
+                self.vioce_violence = self.v.recognize_from_microphone()
                 # Replace with your actual microphone recognition logic
-                self.v.recognize_from_microphone()
             except Exception as e:
                 continue
             time.sleep(1) 
@@ -773,10 +793,9 @@ class apps(MDApp):
         sm.add_widget(ForgotScreen(name='forgotpass'))
         sm.add_widget(HistoryScreen(name='history'))
         sm.add_widget(Video_screen(name='video_screen'))
-        sm.add_widget(About_us(name='about_us'))
         sm.add_widget(Start_page_UI(name = 'start_page'))
         sm.add_widget(Loading(name = 'load'))
-        self.screen.current = 'signup'
+        self.screen.current = 'load'
 
         Clock.schedule_interval(self.progress_bar,1)
         t = threading.Thread(target=self.models_th, daemon=True)
@@ -786,5 +805,5 @@ class apps(MDApp):
         return self.screen
 ###########################################################  END OF CODE  ######################################################   
     
-    
-apps().run()
+if __name__ == "__main__":
+    apps().run()

@@ -21,131 +21,164 @@ ScreenManager:
     ForgotScreen:
     HistoryScreen:
     Video_screen:
-    About_us:
     Start_page_UI:
     Loading:
     
 <LoginScreen>:
     name: 'login'
     
-    MDFloatLayout:
-   
+    BoxLayout:
+        size_hint: [.9, .9]
+        pos_hint: { 'top' : .95, 'right': .95}
 
-        FitImage:
-            id: fit_image1
-            source: ''
-            size_hint: None, None
-            size: 100, 100  
-            pos_hint: {'center_y': 0.9, 'center_x': 0.2}
-            radius: [150, 150, 150, 150]
+        # Add padding and spacing
+        orientation: 'vertical'
+        padding: 10
+        spacing: 20
 
-        MDLabel:
-            text: "LOGIN"
-            bold: True
-            font_size: '24sp'
-            pos_hint: {'center_y': 0.9, 'center_x': 0.8}
-
-
-            
+        canvas:
+            Color:
+                rgb: [1, 1, 1]
+            Rectangle:
+                pos: self.pos
+                size: self.size
         
-        MDTextField:
-            id: username
-            hint_text: 'Username, Email, & Phone number'
-            mode: "rectangle"
-            pos_hint: {'center_x': 0.5,'center_y': 0.7}
-            size_hint_x: None
-            helper_text: " "
-            validator: "email"
-            width: 300
-            error_color : (0,255,0) 
-            on_text: app.login_diplay()
-           
-            
-        MDTextField:
-            
-            id: password
-            hint_text: 'Password'
-            text: root.text
-            password: True
-            icon_left: "key-variant"
-            mode: "rectangle"
-            size_hint_x: None
-            width: 300  
-            pos_hint: {'center_y': 0.57,'center_x': 0.5}
+        BoxLayout:
+            orientation:'vertical'
 
-        MDIconButton:
-            
-            icon: "eye-off"
-            pos_hint: {'center_y': 0.57, 'center_x': 0.72}  # Center vertically relative to MDTextField
-            theme_text_color: "Hint"
-            on_release:
-                self.icon = "eye" if self.icon == "eye-off" else "eye-off"
-                password.password = False if password.password is True else True
+            FitImage:
+                id: fit_image1
+                source: ''
+                size_hint: None, None
+                size: 100, 100  
+                pos_hint: {'center_y': 0.9, 'center_x': 0.2}
+                radius: [150, 150, 150, 150]
 
-        MDRectangleFlatIconButton:
-            text: "Forgot Password?"
-            line_color: 0, 0, 0, 0
-            pos_hint: {"center_x": 0.7,'center_y': 0.45}
-            on_release: root.manager.current = 'forgotpass'
+            MDLabel:
+                text: "LOGIN"
+                bold: True
+                font_size: '24sp'
+                pos_hint: {'center_y': 0.9, 'center_x': 0.8}
+            
+            MDTextField:
+                id: username
+                hint_text: 'Username, Email, & Phone number'
+                mode: "rectangle"
+                pos_hint: {'center_x': 0.5,'center_y': 0.7}
+                size_hint_x: None
+                helper_text: " "
+                validator: "email"
+                width: 400
+                error_color : (0,255,0) 
+                on_text: app.login_diplay()
         
-        MDRaisedButton:
-            text: "Submit"
-            size_hint: 0.2, None
-            width: dp(100)
-            pos_hint: {"center_x": 0.5,'center_y': 0.37}
-            on_release: 
-                app.login_user()
+        MDFloatLayout:
+            pos_hint: {'center_y': 0.5, 'center_x':0.5}
+            spacing:20
+              
+            MDTextField:
                 
-            
+                id: password
+                hint_text: 'Password'
+                text: root.text
+                password: True
+                icon_left: "key-variant"
+                mode: "rectangle"
+                width: 400 
+                size_hint:None,None
+                pos_hint: {'center_y': 0.57, 'center_x':0.5}
+                height:self.minimum_height
+                multiline:False
+                padding:18
+
+
+                
+
+            MDIconButton:
+                
+                icon: "eye-off"
+                pos_hint: {'center_y': 0.56, 'center_x':0.66}
+                theme_text_color: "Hint"
+                on_release:
+                    self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                    password.password = False if password.password is True else True
+
+       
         
-      
-        MDLabel:
-            text: "Don't have an account?"
-            
-            font_style: "H5" 
-            font_size: '16sp'
-            pos_hint: {'center_x': 0.7,'center_y': 0.27}
-            
-            size_hint_x: 0.7
+        MDFloatLayout:
+            pos_hint: {'center_y': 0.7, 'center_x':0.5}
+            spacing:20
 
+            MDRectangleFlatIconButton:
+                text: "Forgot Password?"
+                line_color: 0, 0, 0, 0
+                pos_hint: {'center_y': 0.99, 'center_x':0.7}
+                multiline:False
+                padding:18
+                on_release: root.manager.current = 'forgotpass'
             
+            MDRaisedButton:
+                text: "Submit"
+                size_hint: 0.2, None
+                width: dp(200)
+                pos_hint: {'center_y': 0.8, 'center_x':0.5}
+                multiline:False
+                padding:18
+                on_release: 
+                    app.login_user()
 
-        MDRectangleFlatIconButton:
-            text: "Sign up"
-            
-            line_color: (0, 0, 0, 0)
-            pos_hint: {'center_x': 0.6,'center_y': 0.27}
-            on_release:
-                root.manager.transition.direction  = 'left'
-                root.manager.current = 'signup'
+                    
+            MDRectangleFlatIconButton:
+                text: "Don't have an account? -> Sign up"
+                font_size: '10sp'
+                font_style: "H6" 
+                line_color: (0, 0, 0, 0)
+                pos_hint: {'center_y': 0.4 , 'center_x':0.5}
+                multiline:False
+                padding:18
+                on_release:
+                    root.manager.transition.direction  = 'left'
+                    root.manager.current = 'signup'
 
-        MDRectangleFlatIconButton:
-            text: "About us"
-            
-            line_color: (0, 0, 0, 0)
-            pos_hint: {'center_y': 0.17, 'center_x': 0.5}
-            on_release: root.manager.current = 'about_us'        
+
+            MDRectangleFlatIconButton:
+                text: "About us"
+                
+                line_color: (0, 0, 0, 0)
+                pos_hint: {'center_y': 0.2, 'center_x':0.5}
+                multiline:False
+                padding:18
+                on_release: root.manager.current = 'about_us'        
 
 
 
 <SignupScreen>:
     name: 'signup'
     BoxLayout:
+        size_hint: [.9, .9]
+        pos_hint: { 'top' : .95, 'right': .95}
+
+        # Add padding and spacing
         orientation: 'vertical'
-        padding: [20, 10, 20, 10]  # Add padding for better spacing
+        padding: 10
         spacing: 20
-        pos_hint: {'center_y': 0.7}
+
+        canvas:
+            Color:
+                rgb: [1, 1, 1]
+            Rectangle:
+                pos: self.pos
+                size: self.size
         
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: dp(50)
-            pos_hint: {'center_x': 0.5}
+        
+        
+        MDFloatLayout:
+            pos_hint: {'center_y': 0.99, 'center_x':0.5}
 
             MDIconButton:
                 halign: "center"
                 icon: "keyboard-backspace"
-                pos_hint: {'center_y': 0.5}
+                pos_hint: {'center_x': 0.1, 'center_y':0.9}
                 on_release: root.manager.current = 'login'
 
             MDLabel:
@@ -153,84 +186,82 @@ ScreenManager:
                 text: "Personal Information"
                 bold: True
                 font_size: '24sp'
-                pos_hint: {'center_y': 0.5}
+                pos_hint: {'center_x': 0.5, 'center_y':0.8}
 
         BoxLayout:
-            orientation: 'vertical'
-            size_hint_y: None
-            height: self.minimum_height
-            spacing: dp(30)
-            padding: [0, 20]
+            orientation:'vertical'
+            spacing:dp(20)
+            padding:dp(10)
 
-            BoxLayout:
-                orientation: 'vertical'
+            FitImage:
+                id: fit_image2  
+                source: ''
                 size_hint: None, None
-                size: dp(200), dp(200)
-                pos_hint: {'center_x': 0.5}
-                spacing: dp(10)
+                size: dp(150), dp(150)
+                pos_hint: {'center_x': 0.5, 'center_y':0.7}
+                radius: [dp(75), dp(75), dp(75), dp(75)]
 
-                FitImage:
-                    id: fit_image2  
-                    source: ''
-                    size_hint: None, None
-                    size: dp(150), dp(150)
-                    pos_hint: {'center_x': 0.5}
-                    radius: [dp(75), dp(75), dp(75), dp(75)]
-
-                MDRectangleFlatButton:
-                    text: "Upload Image"
-                    size_hint: None, None
-                    size: dp(150), dp(50)
-                    pos_hint: {'center_x': 0.5}
-                    on_release: app.open_file_manager()
+            MDRectangleFlatButton:
+                text: "Upload Image"
+                size_hint: None, None
+                size: dp(150), dp(50)
+                pos_hint: {'center_x': 0.5, 'center_y':0.6}
+                on_release: app.open_file_manager()
                 
             MDTextField:
                 id: name
                 hint_text: 'Name'
                 mode: "rectangle"
-                pos_hint: {'center_x': 0.55}
+                pos_hint: {'center_x': 0.5, 'center_y':0.5}
+                height:self.minimum_height
+                multiline:False
+                padding:18
                 size_hint_x: None
-                width: 300
+                width: 400
 
             MDTextField:
                 id: email
                 hint_text: 'Email'
                 mode: "rectangle"
-                pos_hint: {'center_x': 0.5}
+                pos_hint: {'center_x': 0.5,'center_y':0.4}
+                height:self.minimum_height
+                multiline:False
+                padding:18
                 size_hint_x: None
-                width: 300
+                width: 400
                 helper_text: "user@gmail.com"
                 validator: "email"
                 on_text: app.error()
 
-            BoxLayout:
-                orientation: 'horizontal'
-                size_hint_y: None
-                height: dp(60)
-                spacing: dp(10)
-                size_hint_x:None
-                pos_hint: {'center_x': 0.4}
+        MDFloatLayout:
+            pos_hint: {'center_y': 0.8, 'center_x':0.5}
+        
+            
+            MDTextField:
                 
-                
-                MDTextField:
-                    id: password
-                    hint_text: 'Password'
-                    text: root.text
-                    password: True
-                    icon_left: "key-variant"
-                    mode: "rectangle"
-                    size_hint_x: None
-                    width: 300
-                    
+                id: password
+                hint_text: 'Password'
+                text: root.text
+                password: True
+                icon_left: "key-variant"
+                mode: "rectangle"
+                width: 400 
+                size_hint:None,None
+                pos_hint: {'center_y': 0.8, 'center_x':0.5}
+                height:self.minimum_height
+                multiline:False
+                padding:18
 
-                MDIconButton:
-                    halign: "center"
-                    icon: "eye-off"
-                    
-                    theme_text_color: "Hint"
-                    on_release:
-                        self.icon = "eye" if self.icon == "eye-off" else "eye-off"
-                        password.password = False if password.password is True else True
+
+                
+            MDIconButton:
+                
+                icon: "eye-off"
+                pos_hint: {'center_y': 0.8, 'center_x':0.66}
+                theme_text_color: "Hint"
+                on_release:
+                    self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                    password.password = False if password.password is True else True
 
 
         
@@ -269,7 +300,9 @@ ScreenManager:
                             title: " "
                             use_overflow: True
                             elevation: 4
-                            pos_hint: {"top": 1}
+                            pos_hint_x:None
+                            width: 500
+                            radius:[ dp(10),  dp(10), dp(75), dp(75)]
                             specific_text_color: "#4a4939"
                             left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
                             right_action_items:[['camera-flip',lambda x:app.camera_flip(),'Front']]
@@ -421,32 +454,45 @@ ScreenManager:
 
 <ForgotScreen>:
     name: 'forgotpass'
-    MDBoxLayout:
-        orientation: 'vertical'
-        padding: dp(100)
-        spacing: dp(50)
-        pos_hint: {'center_y': 0.6}
-        
+    BoxLayout:
+        size_hint: [.9, .9]
+        pos_hint: { 'top' : .95, 'right': .95}
 
-        BoxLayout:
-            orientation: 'horizontal'
-            spacing: dp(2)
-            padding: dp(10)
-            pos_hint: {'center_x': 0.5}
+        # Add padding and spacing
+        orientation: 'vertical'
+        padding: 10
+        spacing: 20
+
+        canvas:
+            Color:
+                rgb: [1, 1, 1]
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            
+
+        MDFloatLayout:
+            pos_hint: {'center_y': 0.99, 'center_x':0.5}
             
 
             MDIconButton:
                 icon: "keyboard-backspace"
-                pos_hint: {'center_y': 0.5}
+                pos_hint: {'center_y': 0.8,'center_x': 0.1}
                 on_release: root.manager.current = 'login'
 
-            Image:
-                id:detect_screen
-                pos_hint: {'center_y': 0.5}
-                source: ''
-                size_hint: 1.9, 1.9
-                radius: [5000, 5000, 5000, 5000]
-                
+            MDLabel:
+                halign: "center"
+                text: "Forgot Password"
+                bold: True
+                font_size: '24sp'
+                pos_hint: {'center_x': 0.5, 'center_y':0.8}
+        
+        Image:
+            id:detect_screen
+            pos_hint: {'center_x': 0.5}
+            source: ''
+            size_hint: 1.9, 1.9
+            radius: [5000, 5000, 5000, 5000]
 
         MDLabel:
             id: Forgot
@@ -505,21 +551,7 @@ ScreenManager:
             state: 'play'
             options:{'eos':'loop'}
             allow_stretch: True 
-<About_us>:
-    name: 'about_us'
-    MDFloatLayout:
- 
-        MDLabel:
-            text: "About Us"
-            bold: True
-            font_size: '24sp'
-            pos_hint: {'center_x': 0.5, 'center_y':0.9}
-            halign:'center'
 
-        MDLabel:
-            text: "At ChildGuard, we are dedicated to fostering safer environments for children and caregivers through innovative technology. Our mission is to create a world where every child feels secure and valued, and where caregivers are equipped with the resources they need to support and nurture their charges effectively. Recognizing the alarming prevalence of violence and abuse in caregiver-child interactions, we developed our flagship app, ChildGuard. This user-friendly platform serves as a vital tool in identifying and addressing instances of violence and emotional distress, ensuring that children can grow up in healthy, supportive environments. ChildGuard leverages advanced algorithms and machine learning techniques to detect patterns of behavior that may indicate potential violence or abuse. By analyzing everything from communication styles to emotional cues, ChildGuard provides caregivers, educators, and child welfare professionals with actionable insights. Our goal is to prevent violence before it happens, advocate for at-risk children, and promote positive caregiver-child relationships. At ChildGuard, we believe that knowledge is power. Our educational resources empower caregivers with information about healthy interactions and effective communication strategies. We are committed to building a community of support, where caregivers can share their experiences, learn from one another, and access the tools they need to thrive. Join us in our mission to protect and empower children and caregivers alike. Together, we can make a meaningful difference in the lives of countless families. Thank you for being a part of our journey toward a safer future for everyone."
-            font_size: '18sp'
-            halign:'center'
 
 <Start_page_UI>:
     name: 'start_page'
@@ -532,7 +564,7 @@ ScreenManager:
         padding: "100dp"
         
         MDLabel:
-            text:"Wait a minute"
+            text:"Wait a minute, Model is Loading"
             text_color:255,255,255,0
             font_size:"20sp"
             pos_hint:{"center_x":.51}
