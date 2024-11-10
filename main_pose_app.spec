@@ -3,6 +3,9 @@ block_cipher = None
 from kivy_deps import sdl2, glew
 from kivymd import hooks_path as kivymd_hooks_path
 import sys
+from PIL import Image
+import PIL
+#import md_icons kivymd.icon_definitions.md_icons
 import os
 path =  os.path.abspath('.')
 
@@ -12,6 +15,9 @@ a = Analysis(
     binaries=[],
     datas=[
         ('assets/images/*','assets/images'),
+        ('assets/images/*.jpg', 'assets/images'),
+        ('assets/images/*.jpeg', 'assets/images'),
+        ('assets/images/*.gif', 'assets/images'),
         ('assets/database/*','assets/database'),
         ('assets/models/*','assets/models'),
         ('assets/pre_train/multipose_lightning/**/*', 'assets/pre_train/multipose_lightning'),
@@ -28,7 +34,7 @@ a = Analysis(
         ('src/violent.py', 'src'),
         
     ],
-    hiddenimports=['tensorflow','tensorflow-hub', 'kivymd', 'cv2','Pyrebase','src.icon_definitions','src.pyrebase_init','src.download_vid', 'src.voice', 'src.kv', 'src.sql_app','src.violent'],
+    hiddenimports=['tensorflow','tensorflow-hub', 'kivymd','PIL', 'PIL._imaging', 'PIL.JpegImagePlugin', 'PIL.GifImagePlugin', 'cv2','Pyrebase','src.icon_definitions','src.pyrebase_init','src.download_vid', 'src.voice', 'src.kv', 'src.sql_app','src.violent'],
     hookspath=[kivymd_hooks_path],
     hooksconfig={},
     runtime_hooks=[],

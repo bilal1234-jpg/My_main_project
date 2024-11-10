@@ -1,5 +1,7 @@
 from kivy.lang import Builder
 from kivymd.app import MDApp
+from kivymd.icon_definitions import md_icons
+#import md_icons kivymd.icon_definitions.md_icons
 from kivy.uix.screenmanager import Screen , ScreenManager
 from kivymd.uix.filemanager import MDFileManager
 from kivy.properties import StringProperty
@@ -7,7 +9,6 @@ from kivymd.uix.dialog import MDDialog
 import smtplib
 import tensorflow as tf
 import cv2
-from kivymd.icon_definitions import md_icons
 from tensorflow.keras import models
 import numpy as np
 import os
@@ -27,12 +28,18 @@ import time
 import tensorflow_hub as hub
 import sys
 from datetime import datetime
-
+from kivy.graphics import Rectangle
+from kivymd.uix.snackbar import Snackbar
+from kivy.metrics import dp
+from PIL import Image
+import PIL
+from kivy.uix.boxlayout import BoxLayout
+from kivy.graphics import Color, Rectangle
 
 # Myself modules
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from pyrebase_init import storage
-from download_vid import fire_base_download
+# from download_vid import fire_base_download
 from voice import voice_detect
 from kv import helper1
 from  sql_app import User , session
@@ -61,74 +68,83 @@ EDGES = {
 
 
 ####################################################### Screens Class #########################################################################
-
-
-
-
-
 kv_add =  os.path.dirname(os.path.abspath(__file__))
 
-class LoginScreen(Screen):
-    text = StringProperty()
-    def __init__(self, **kwargs):
-            super(LoginScreen, self).__init__(**kwargs)
-            
-
-    def on_enter(self):  # This method is called when the screen is displayed
-        Clock.schedule_once(self.change_fit_image_source, 0)
-        
-
-    def change_fit_image_source(self,dt):
-        new_source = os.path.join(kv_add, 'assets', 'images', 'violence.png')
-        self.ids.fit_image1.source = new_source
-        print(f'Source of fit_image1 changed to: {self.ids.fit_image1.source}')
-    
-    
-class SignupScreen(Screen):
-    text = StringProperty()  
-    vid_img_scr = BooleanProperty(True)
-    def on_enter(self):
-        self.ids.fit_image2.source = os.path.join(kv_add, 'assets','images','sign.png')
-class MainScreeen(Screen):
-    vid_img_scr = BooleanProperty(True)
-    def on_enter(self):
-        self.ids.camera_feed.source = os.path.join(kv_add, 'assets','images','upload.png')
-        
-class ForgotScreen(Screen):
-    def on_enter(self):
-        self.ids.detect_screen.source = os.path.join(kv_add, 'assets','images','forgot1.jpg')
-class HistoryScreen(Screen):
-    pass
-class Video_screen(Screen):
-    pass
-
 class Loading(Screen):
-    pass
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        layout = FloatLayout()
+
+        # Add a canvas and Rectangle dynamically
+        with layout.canvas:
+            Color(1, 1, 1, 1)  # White color for the background
+            self.bg_rect = Rectangle(source=os.path.join(kv_add, 'assets', 'images', 'bg7.jpg'), size=layout.size, pos=layout.pos)
+
+        # Bind size and position to update dynamically
+        layout.bind(size=self.update_rectangle, pos=self.update_rectangle)
+
+        self.add_widget(layout)
+
+    def update_rectangle(self, instance, value):
+        """Update Rectangle size and position when layout changes."""
+        self.bg_rect.size = instance.size
+        self.bg_rect.pos = instance.pos
+        
+    def on_enter(self):
+        Clock.schedule_once(self.update,0)
+
+    def update(self,dt):
+        new_source1 = os.path.join(kv_add, 'assets', 'images', 'vid4.gif')
+        self.ids.gif.source = new_source1
+
 
 
 class Start_page_UI(Screen):
+    
     def __init__(self, **kwargs):
         super(Start_page_UI, self).__init__(**kwargs)
-        # You can still define and add widgets here
-        # with self.canvas.before:
-        #     Rectangle(source='bg6.jpg', pos=self.pos, size=Window.size)
-        base_add = os.path.dirname(os.path.abspath(__file__))
-        relative_add_pic = os.path.join(base_add,'assets','images')
+        self.index1 = 0
 
-        box_layout = FloatLayout()
+        layout = BoxLayout(orientation="horizontal")
+        inner_layout = BoxLayout(orientation="vertical", pos_hint={"center_x": 0.5, "center_y": 0.5})
 
-        self.image = Image(source=os.path.join(relative_add_pic,'logo2.png'), pos_hint={'center_x': 0.1, 'center_y': 0.1}, size = (self.height*1, self.width*1), size_hint=(None, None))
-        self.md_label = MDLabel(text='ChildGuard', halign='center', size=(self.height*0, self.width*0), size_hint_y=None, font_style='H4', bold=True, theme_text_color="Custom",
-            text_color=(0,0,0,1))
+            # Add a canvas and Rectangle dynamically
+        with inner_layout.canvas:
+            Color(1, 1, 1, 1)  # White color
+            self.bg_rect = Rectangle(source=os.path.join(kv_add, 'assets', 'images', 'bg11.jpg'), size=layout.size, pos=inner_layout.pos)
+
+        # Bind size and position to update dynamically
+        inner_layout.bind(size=self.update_rectangle, pos=self.update_rectangle)
+
+        layout.add_widget(inner_layout)
+        self.add_widget(layout)
+    def update_rectangle(self, instance, value):
         
-        self.animate_lable()
-        box_layout.add_widget(self.md_label)
-        self.animate_image()
-        self.add_widget(self.image)
-        button1 = MDIconButton(icon = os.path.join(relative_add_pic,'next-button.png'), pos_hint={"center_x": .5, 'center_y': 0.1} ,icon_size =  "100sp", on_release=self.login)
+        self.bg_rect.size =instance.size
+        self.bg_rect.pos = instance.pos
+
+    def on_enter(self): 
+
+        Clock.schedule_interval(self.update_label1, 0.5)
+
+        new_source1 = os.path.join(kv_add, 'assets', 'images', 'bg4.png')
+        self.ids.fit_image45.source = new_source1
+
         
-        box_layout.add_widget(button1)
-        self.add_widget(box_layout)
+
+    def update_label1(self, dt):
+        self.words = ['C','h','i','l','d','G','a','u','r','d']
+
+        
+        
+        if self.index1 < len(self.words):
+            # Update the label with the next word
+            self.ids.M1.text += self.words[self.index1]
+            self.index1 += 1
+        else:
+            # Stop updating after all words are shown
+            Clock.unschedule(self.update_label1)
+            self.login()
 
         
     def login(self, *args):
@@ -137,15 +153,142 @@ class Start_page_UI(Screen):
         else:
             print("Error: 'manager' is not defined")
 
-    def animate_image(self, *args):
-        anim = Animation(size = (self.height,self.width ))
-        anim += Animation(size = (self.height*4, self.width*4),pos_hint={'center_x': 0.5, 'center_y': 0.6}, transition = 'in_quad')
-        anim.start(self.image)
-    def animate_lable(self, *args):
-        anim_lable = Animation(size = (self.height, self.width ))
-        anim_lable += Animation(size = (self.height*4, self.width*4), transition = 'in_circ')
-        anim_lable.start(self.md_label)
+ 
+class LoginScreen(Screen):
+    text = StringProperty()
+    def __init__(self, **kwargs):
+            super(LoginScreen, self).__init__(**kwargs)
+            self.index = 0
+            self.words = ["Welcome", " to", " Child", "Gaurd", " AI", " Based system"]
+
+            layout = BoxLayout(orientation="horizontal")
+            inner_layout = BoxLayout(orientation="vertical", pos_hint={"center_x": 0.5, "center_y": 0.5})
+
+                # Add a canvas and Rectangle dynamically
+            with inner_layout.canvas:
+                Color(1, 1, 1, 1)  # White color
+                self.bg_rect = Rectangle(source=os.path.join(kv_add, 'assets', 'images', 'bg10.jpeg'), size=(500,500), pos=inner_layout.pos)
+
+            # Bind size and position to update dynamically
+            inner_layout.bind(size=self.update_rectangle, pos=self.update_rectangle)
+
+            layout.add_widget(inner_layout)
+            self.add_widget(layout)
+
+    def update_rectangle(self, instance, value):
         
+        self.bg_rect.size = (1000,850)
+        self.bg_rect.pos = instance.pos
+            
+
+    def on_enter(self): 
+
+        Clock.schedule_once(self.change_fit_image_source, 0)
+        Clock.schedule_interval(self.update_label, 0.8)
+        
+
+    def change_fit_image_source(self,dt):
+        new_source = os.path.join(kv_add, 'assets', 'images', 'bg4.png')
+        self.ids.fit_image1.source = new_source
+        
+    
+    def update_label(self, dt):
+        
+        if self.index < len(self.words):
+            # Update the label with the next word
+            self.ids.MD.text += self.words[self.index]
+            self.index += 1
+        else:
+            # Stop updating after all words are shown
+            Clock.unschedule(self.update_label)
+        
+        
+    
+    
+class SignupScreen(Screen):
+    text = StringProperty() 
+    def __init__(self, **kwargs):
+            super(SignupScreen, self).__init__(**kwargs)
+            self.index = 0
+            self.words = ["Welcome!", " Please", " fill", " the"," form"]
+            self.rect = None
+
+            layout = BoxLayout(orientation="horizontal")
+            inner_layout = BoxLayout(orientation="vertical", pos_hint={"center_x": 0.5, "center_y": 0.5})
+
+                # Add a canvas and Rectangle dynamically
+            with inner_layout.canvas:
+                Color(1, 1, 1, 1)  # White color
+                self.bg_rect = Rectangle(source=os.path.join(kv_add, 'assets', 'images', 'bg10.jpeg'), size=(500,500), pos=inner_layout.pos)
+
+            # Bind size and position to update dynamically
+            inner_layout.bind(size=self.update_rectangle, pos=self.update_rectangle)
+
+            layout.add_widget(inner_layout)
+            self.add_widget(layout)
+
+    def update_rectangle(self, instance, value):
+        
+        self.bg_rect.size = (1000,850)
+        self.bg_rect.pos = (600,0.2)
+
+    vid_img_scr = BooleanProperty(True)
+    def on_enter(self):
+
+        self.ids.fit_image2.source = os.path.join(kv_add, 'assets','images','sign.png')
+
+        Clock.schedule_interval(self.update_label, 1)
+
+    def update_label(self, dt):
+        
+        if self.index < len(self.words):
+            # Update the label with the next word
+            self.ids.MD1.text += self.words[self.index]
+            self.index += 1
+        else:
+            # Stop updating after all words are shown
+            Clock.unschedule(self.update_label)
+class MainScreeen(Screen):
+    def __init__(self, **kwargs):
+            super(MainScreeen, self).__init__(**kwargs)
+    vid_img_scr = BooleanProperty(True)
+    def on_enter(self):
+        self.ids.camera_feed.source = os.path.join(kv_add, 'assets','images','bg3.jpg')
+        
+class ForgotScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    # forui = StringProperty("assets/images/forgot_pass.jpg")
+    
+        layout = BoxLayout(orientation="horizontal")
+        inner_layout = BoxLayout(orientation="vertical", pos_hint={"center_x": 0.5, "center_y": 0.5})
+
+            # Add a canvas and Rectangle dynamically
+        with inner_layout.canvas:
+            Color(1, 1, 1, 1)  # White color
+            self.bg_rect = Rectangle(source=os.path.join(kv_add, 'assets', 'images', 'forgot_pass.jpg'), size=(500,500), pos=inner_layout.pos)
+
+        # Bind size and position to update dynamically
+        inner_layout.bind(size=self.update_rectangle, pos=self.update_rectangle)
+
+        layout.add_widget(inner_layout)
+        self.add_widget(layout)
+    def update_rectangle(self, instance, value):
+        
+        self.bg_rect.size = (1000,850)
+        self.bg_rect.pos = instance.pos
+    def on_enter(self):
+
+        self.ids.detect_screen.source = os.path.join(kv_add, 'assets','images','forgot1.jpg')
+class HistoryScreen(Screen):
+    pass
+class Video_screen(Screen):
+    pass
+
+
+
+
+
 
 ################################################# Main Class #############################################################################
 
@@ -181,7 +324,7 @@ class apps(MDApp):
         self.threshold = 0.3
         self.action = 'normal'
         self.color = (0,255,0)
-        self.fire_base = fire_base_download()
+        # self.fire_base = fire_base_download()
         self.refresh = False
         self.value = 0
         self.rdl1 = 0
@@ -275,27 +418,47 @@ class apps(MDApp):
         password = self.root.get_screen('signup').ids.password.text
         
         err = self.error()
-        if name and email and password:
-             if err != True:
-                new_user = User(name=name, email=email, password = password, img_address = self.selected_path)
-                session.add(new_user)
-                session.commit()
-                
-                self.root.get_screen('signup').ids.name.text = ''
-                self.root.get_screen('signup').ids.email.text = ''
-                self.root.get_screen('signup').ids.password.text = ''
-                self.root.get_screen('signup').ids.fit_image2.source = os.path.join(self.base_address,'assets','images','sign.png')
-                
-             else:
-                 self.root.get_screen('signup').ids.email.helper_text = 'Enter correct Email first'
-                 
+        user = session.query(User).filter(User.email==email).first()
+        if not user:
+            if name.isalpha():
+                if name and email and password:
+                    if err != True:
+                        new_user = User(name=name, email=email, password = password, img_address = self.selected_path)
+                        session.add(new_user)
+                        session.commit()
+                        
+                        self.root.get_screen('signup').ids.name.text = ''
+                        self.root.get_screen('signup').ids.email.text = ''
+                        self.root.get_screen('signup').ids.password.text = ''
+                        self.root.get_screen('signup').ids.fit_image2.source = os.path.join(self.base_address,'assets','images','sign.png')
+                        
+                    else:
+                        self.root.get_screen('signup').ids.email.helper_text = 'Enter correct Email first'
+                        
+                else:
+                    dialog = MDDialog(
+                    title="Warning",
+                    text="Name, Email and Password cannot be empty",
+                    size_hint=(0.5, 0.3)
+                        )
+                    dialog.open()
+            else:
+                dialog = MDDialog(
+                    title="Warning",
+                    text="Name can only be Alphabetic",
+                    size_hint=(0.5, 0.3)
+                        )
+                dialog.open()
         else:
-             dialog = MDDialog(
-             title="Warning",
-             text="Name, Email and Password cannot be empty",
-             size_hint=(0.5, 0.3)
-                )
-             dialog.open()
+            dialog = MDDialog(
+                title = "Warning",
+                text = "This Email already registered",
+                size_hint = (0.5,0.3)
+                    )
+            dialog.open()
+
+        
+            
 ################################################## Check user use name or email in login ##########################################################################
     def login_diplay(self):
         
@@ -432,7 +595,7 @@ class apps(MDApp):
                     )
              dialog.open()
     
-    ############################################ TEMP COMMENT OUT #################################################################
+   
     ############################################# OpenCv for model detection #############################################################################
     def camera_flip(self):
         
@@ -607,7 +770,7 @@ class apps(MDApp):
   ##############################################################################################################################################  
     def capture_vid(self):
             
-            internet_dir = os.path.join(self.base_address, 'assets','lose_internet_connections_videos')
+            internet_dir = os.path.join(self.base_address, 'assets','videos')
 
             if not os.path.exists(internet_dir):
                 os.makedirs(internet_dir, exist_ok=True)
@@ -616,7 +779,7 @@ class apps(MDApp):
             now = datetime.now()
             video_time = now.strftime("%d-%m-%Y %H:%M:%S")
             video_time2 = now.strftime("%d-%m-%Y_%H-%M-%S").replace(':', '-')
-            temp_filename = os.path.join(internet_dir,f'internet_connection_fail{video_time2}.avi')
+            temp_filename = os.path.join(internet_dir,f'local_save_vid{video_time2}.avi')
                 
             # Get the height and width of the frames
             height, width, channels = self.vid_frame[0].shape
@@ -636,7 +799,7 @@ class apps(MDApp):
             filename = f'violence_videos/{video_time}.avi'
             if storage!=0:
                 storage.child(filename).put(temp_filename)
-                os.remove(temp_filename)
+                
             
                 
             
@@ -692,8 +855,8 @@ class apps(MDApp):
             files = os.listdir(output_folder)
         # files = sorted(files, key=lambda x: int(re.search(r'(\d+)', x).group()))
         
-        downth = threading.Thread(target=self.fire_base.fire)
-        downth.start()
+        # downth = threading.Thread(target=self.fire_base.fire)
+        # downth.start()
 
         history_screen.ids.history_list.clear_widgets()
         for i in files:
@@ -726,10 +889,16 @@ class apps(MDApp):
                 if isinstance(item, OneLineAvatarIconListItem) and item.text == text:
                     history_list.remove_widget(item)
                     break
-        except:
-            print('Permission Denied')
+
+            # Snackbar(text="Video has been deleted").open()
+
+            history_list.canvas.ask_update()
+
+        except Exception as e:
+            print(e)
+            #  Snackbar(text=f"Video not deleted: {e}, Try Again").open()
     
-        history_list.canvas.ask_update()
+        
 
     def switch_theme_style(self):
         self.theme_cls.primary_palette = (
@@ -773,14 +942,6 @@ class apps(MDApp):
             time.sleep(1) 
             
 
-           
-         
-    def toggle_fullscreen(self):  
-        if Window.fullscreen == 'auto':  
-            Window.fullscreen = False  
-            Window.size = (800, 600)
-        else:  
-            Window.fullscreen = 'auto' 
 ########################################## Main builder for load screens layout #################################################################        
     def build(self):
         

@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 from pyrebase_init import parent_dir
+
 Base = declarative_base()
 
 class User(Base):
@@ -15,6 +16,7 @@ class User(Base):
 
 db_directory = os.path.join(parent_dir,'assets', 'database')
 os.makedirs(db_directory, exist_ok=True)
+
 DATABASE_URL = f"sqlite:///{db_directory}/users.db"
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)

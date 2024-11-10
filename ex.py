@@ -1,3 +1,3 @@
-from datetime import datetime
-now = datetime.now()
-now.strftime("%d-%m-%Y %H:%M:%S")
+import os
+
+print(os.path.join(os.getcwd(), 'assets','images', 'bg3.jpg'))
