@@ -23,7 +23,9 @@ try:
     fire_base = pyrebase.initialize_app(config)
     db = fire_base.database()
     storage = fire_base.storage()
+    db = fire_base.database()
 
 except Exception as e:
         storage = 0
+        db = 0
         print("Error {e}")

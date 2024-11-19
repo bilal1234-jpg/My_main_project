@@ -36,7 +36,6 @@ ScreenManager:
             allow_stretch: True
             anim_delay: 0.1
             anim_loop: 1000
-            
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
         
         MDLabel:
@@ -551,15 +550,6 @@ ScreenManager:
 
         BoxLayout:
             orientation:"vertical"
-            # pos_hint: {"center_x": 0.5, "center_y": 0.5}
-
-            # canvas:
-            #     Color:
-            #         rgba: 1, 1, 1, 1
-            #     Rectangle:
-            #         source: root.forui
-            #         size: self.size
-            #         pos: self.pos
 
             MDIconButton:
                 icon: "keyboard-backspace"

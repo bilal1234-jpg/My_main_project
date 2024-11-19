@@ -19,10 +19,9 @@ class voice_detect:
             try:
                 audio = self.recognizer.listen(source, timeout=1, phrase_time_limit=3)
                 text = self.recognizer.recognize_google(audio)
-                return text
                 
-                # if any(word in text for word in voi_list):
-                #     return text
+                if any(word in text for word in voi_list):
+                    return text
                 
             except sr.UnknownValueError:
                 pass

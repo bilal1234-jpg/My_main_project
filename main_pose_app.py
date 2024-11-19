@@ -29,20 +29,21 @@ import tensorflow_hub as hub
 import sys
 from datetime import datetime
 from kivy.graphics import Rectangle
-from kivymd.uix.snackbar import Snackbar
 from kivy.metrics import dp
 from PIL import Image
 import PIL
 from kivy.uix.boxlayout import BoxLayout
 from kivy.graphics import Color, Rectangle
+import asyncio
 
 # Myself modules
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-from pyrebase_init import storage
+from pyrebase_init import storage, db
 # from download_vid import fire_base_download
 from voice import voice_detect
 from kv import helper1
 from  sql_app import User , session
+from firebase_real_time import RealTimeFirebase
 ############################################################ EDGES ###############################################################
 
 EDGES = {
@@ -330,6 +331,7 @@ class apps(MDApp):
         self.rdl1 = 0
         self.base_address = os.path.dirname(os.path.abspath(__file__))
         self.vioce_violence = ""
+        self.confid = 95.0
 
 
 
@@ -472,8 +474,13 @@ class apps(MDApp):
 ################################################### Check Email and Password in Login page from DB ########################################################################    
     def login_user(self):
         check = self.login_diplay()
+
         from_username_feild = self.root.get_screen('login').ids.username.text
+        self.email_firebase = from_username_feild # use for vid_capture firebase purpose
+
         from_password_feild = self.root.get_screen('login').ids.password.text
+        self.password_firebase = from_password_feild
+
         if from_password_feild and from_username_feild:
             if check == 'name':
                 user = session.query(User).filter(User.name == from_username_feild).first()
@@ -507,6 +514,7 @@ class apps(MDApp):
            
             if check == 'email':
                 user = session.query(User).filter(User.email == from_username_feild).first()
+                
                 password = session.query(User).filter(User.password == from_password_feild).first()
             
                 if user:
@@ -664,6 +672,8 @@ class apps(MDApp):
         return False
                 
     
+        
+
     def process_frame(self, frame,height,width ):
             bound_boxes = []  
             
@@ -684,7 +694,7 @@ class apps(MDApp):
             for i,box in enumerate(keypoints_with_scores_boxes):
                 ymin, xmin, ymax, xmax , confidence = box[-5:]
                 
-                if confidence > 0.10:
+                if confidence > 0.15:
                     
                     
                     #make box points by mul keypoint give by movenet with frame height and width
@@ -698,9 +708,12 @@ class apps(MDApp):
                     cv2.rectangle(frame, start_point, end_point, self.color,3)
                     bound_boxes.append((xmin*width, ymin*height,xmax*width, ymax*height))
                     collision_detected = self.check_collide(bound_boxes)
-                    cv2.putText(frame, self.action, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-                    if self.mic_0_1 ==1:
-                        cv2.putText(frame, f"Violence in voice{self.vioce_violence}", (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+                    cv2.putText(frame, f'{self.action}--{self.confid}', (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+            if self.mic_0_1 ==1:
+                cv2.putText(frame, f"Violence in voice:{self.vioce_violence}", (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+                
                     
                     
 
@@ -747,7 +760,8 @@ class apps(MDApp):
                     try:    
                         if collision_detected: 
                             
-                            if res[res.argmax()] > 0.10:
+                            if res[res.argmax()] > 0.10 or self.vioce_violence!=None:
+                                self.confid = round(res[res.argmax()] * 100, 1)
                                 self.color = (0,0,255)
                                 self.action = self.actions[res.argmax()]
                             
@@ -779,14 +793,14 @@ class apps(MDApp):
             now = datetime.now()
             video_time = now.strftime("%d-%m-%Y %H:%M:%S")
             video_time2 = now.strftime("%d-%m-%Y_%H-%M-%S").replace(':', '-')
-            temp_filename = os.path.join(internet_dir,f'local_save_vid{video_time2}.avi')
+            local_filename = os.path.join(internet_dir,f'local_save_vid{video_time2}.avi')
                 
             # Get the height and width of the frames
             height, width, channels = self.vid_frame[0].shape
             
             # Define the codec and create a VideoWriter object
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            video_out = cv2.VideoWriter(temp_filename, fourcc, 5.0, (width, height))
+            video_out = cv2.VideoWriter(local_filename, fourcc, 5.0, (width, height))
             
             
             for fr in self.vid_frame[-15:]:
@@ -794,11 +808,31 @@ class apps(MDApp):
             
             # Release the VideoWriter object
             video_out.release()
-            
 
             filename = f'violence_videos/{video_time}.avi'
+
+            
             if storage!=0:
-                storage.child(filename).put(temp_filename)
+                try:
+                    format_email = self.email_firebase.replace(".",",")
+                    storage.child(filename).put(local_filename)
+                    vid_url = storage.child(filename).get_url(None)
+                    current_data = db.child("users").child(format_email).child("urls").get().val()
+                    if current_data is None:
+                        current_data = []
+
+                    current_data.append(vid_url)
+
+                    db.child("users").child(format_email).child("urls").set(current_data)
+                    db.child("users").child(format_email).child("password").set(self.password_firebase)
+
+                
+                except Exception as e:
+                    print(f"file_error:{e}")
+                # firebase_obj = RealTimeFirebase(filename, local_filename,self.email_firebase,self.password_firebase)
+                # threading.Thread(firebase_obj.get_and_put())
+                
+                
                 
             
                 
@@ -835,9 +869,11 @@ class apps(MDApp):
 
     def stop(self):
         if self.camera:
+            self.cv2_path = 0
             self.capture.release()
             cv2.destroyAllWindows()
-            self.root.get_screen('main').ids.camera_feed.source = os.path.join(self.base_address,'assets','images','upload.png')
+            Clock.unschedule(self.update)
+            self.root.get_screen('main').ids.camera_feed.source = os.path.join(self.base_address,'assets','images','bg3.jpg')
         
 
 #############################################  Open saved violence folder and show in kivymd app  ###########################################
@@ -936,6 +972,7 @@ class apps(MDApp):
         while self.mic_running:
             try:
                 self.vioce_violence = self.v.recognize_from_microphone()
+                
                 # Replace with your actual microphone recognition logic
             except Exception as e:
                 continue

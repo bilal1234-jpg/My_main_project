@@ -1,3 +1,5 @@
-import os
+import numpy as np
+ok=[]
+ok = np.load(r"E:\Bilal\PYTHON\ML\Unsupervised\Deep_Learning\Object_detection_API\Human_pose_tensorflow\MPP_DATA\kick\1\5.npy")
 
-print(os.path.join(os.getcwd(), 'assets','images', 'bg3.jpg'))
+print(ok)
